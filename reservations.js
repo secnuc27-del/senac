@@ -156,9 +156,21 @@ function setupFirebaseRealtimeSync() {
           _firestoreDb.collection("reservas").doc(id).set(data).catch(console.warn);
         });
 
-        // Salvar lista mesclada no localStorage
+        // Salvar lista mesclada no localStorage (Agrupada por espaço)
         const merged = [...cloudList, ...pendingLocal];
-        _saveLocalReservations(merged);
+        const grouped = {};
+        ESPACOS.forEach(e => grouped[e.id] = []);
+        merged.forEach(r => {
+           if (r.espaco && grouped[r.espaco]) {
+              grouped[r.espaco].push(r);
+           } else {
+              grouped["auditorio"].push(r); // default fallback
+           }
+        });
+        
+        ESPACOS.forEach(e => {
+           _saveLocalReservations(grouped[e.id], e.id);
+        });
 
         window.dispatchEvent(new Event("reservations-changed"));
       } catch (e) {

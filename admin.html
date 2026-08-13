@@ -235,7 +235,7 @@
   </div>
 
   <!-- Modal Editar Reserva -->
-  <div class="modal-overlay" id="modal-edit-reservation">
+  <div class="modal-backdrop" id="modal-edit-reservation">
     <div class="modal">
       <div class="modal-header">
         <h2 class="modal-title">Editar Reserva</h2>
@@ -275,6 +275,7 @@
       </form>
     </div>
   </div>
+
 
   <!-- Modal for Creating/Editing Reservation -->
   <div class="modal-backdrop" id="reservation-modal">
@@ -424,10 +425,12 @@
         });
 
         document.getElementById("btn-logout").addEventListener("click", () => {
-          auth.signOut().then(() => {
-            sessionStorage.removeItem(AUTH_KEY);
+          sessionStorage.removeItem(AUTH_KEY);
+          if (window._firebaseAuth) {
+            window._firebaseAuth.signOut().finally(() => window.location.reload());
+          } else {
             window.location.reload();
-          });
+          }
         });
 
       } else {
@@ -450,7 +453,11 @@
 
         document.getElementById("btn-logout").addEventListener("click", () => {
           sessionStorage.removeItem(AUTH_KEY);
-          window.location.reload();
+          if (window._firebaseAuth) {
+            window._firebaseAuth.signOut().finally(() => window.location.reload());
+          } else {
+            window.location.reload();
+          }
         });
       }
     }
@@ -559,6 +566,15 @@
         alert("Lista limpa!");
       }).catch(err => alert("Erro: " + err.message));
     }
+
+    // Slots padrão para popular o select de horário na edição
+    window.TIME_SLOTS = [
+      "07h30 às 09h00", "09h00 às 10h30", "10h30 às 12h00",
+      "Manhã (07h30 - 12h00)", "13h00 às 14h30", "14h30 às 16h00",
+      "16h00 às 18h00", "Tarde (13h00 - 18h00)", "18h00 às 19h30",
+      "19h30 às 21h00", "21h00 às 22h00", "Noite (18h00 - 22h00)",
+      "Integral (07h30 - 22h00)"
+    ];
 
     function openEditModal(id, espacoId) {
       const res = getAllReservations().find(r => r.id === id);
