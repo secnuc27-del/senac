@@ -59,12 +59,12 @@ function getEspacoById(id) {
 // Deixe SUA_API_KEY_AQUI e os demais inalterados para
 // operar apenas com armazenamento local (offline).
 const FIREBASE_CONFIG = {
-  apiKey:            "SUA_API_KEY_AQUI",
-  authDomain:        "SEU_PROJETO.firebaseapp.com",
-  projectId:         "SEU_PROJETO",
-  storageBucket:     "SEU_PROJETO.appspot.com",
-  messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-  appId:             "SEU_APP_ID"
+  apiKey:            "AIzaSyAUkBrXksuzHiW-_qcROmbAJQVvbAWMvbo",
+  authDomain:        "senac-auditorio.firebaseapp.com",
+  projectId:         "senac-auditorio",
+  storageBucket:     "senac-auditorio.firebasestorage.app",
+  messagingSenderId: "315213684709",
+  appId:             "1:315213684709:web:0d4b16f075012df522190c"
 };
 
 // ─── ESTADO GLOBAL DO FIREBASE ─────────────────────────────
