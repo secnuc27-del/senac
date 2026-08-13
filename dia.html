@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Horários do Dia — Espaços Senac</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .nav-text { display: none; }
+    @media (min-width: 640px) { .nav-text { display: inline; } }
+
+    /* ===== HOLIDAY FULL-SCREEN MODE ===== */
+    body.holiday-mode .page-header,
+    body.holiday-mode .page-subtitle,
+    body.holiday-mode #past-alert {
+      display: none !important;
+    }
+    body.holiday-mode .back-link {
+      position: absolute;
+      top: 72px;
+      left: 72px;
+      z-index: 10;
+      background: rgba(0, 0, 0, 0.45);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1.5px solid rgba(255, 255, 255, 0.35);
+      color: #fff;
+      border-radius: 50%;
+      width: 52px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+    }
+    body.holiday-mode .back-link:hover {
+      background: rgba(0, 0, 0, 0.65);
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+    }
+    body.holiday-mode .back-link svg {
+      stroke: #fff;
+      width: 22px;
+      height: 22px;
+      flex-shrink: 0;
+    }
+    /* Hide text label, keep icon only */
+    body.holiday-mode .back-link-label {
+      display: none;
+    }
+    body.holiday-mode main.page {
+      padding: 0 !important;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+    body.holiday-mode .slots-wrapper {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+    }
+    body.holiday-mode .holiday-page {
+      width: calc(100% - 48px);
+      border-radius: 24px;
+      margin: 24px auto;
+      padding: 120px 32px 40px;
+      justify-content: flex-end;
+      align-items: center;
+    }
+    body.holiday-mode .h-deco,
+    body.holiday-mode .h-particles {
+      display: none !important;
+    }
+    body.holiday-mode .site-footer {
+      display: none;
+    }
+
+    /* ===== HOLIDAY PHOTO BACKGROUND ===== */
+    .holiday-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      min-height: 82vh;
+      padding: 56px 24px 48px;
+      border-radius: 24px;
+      margin-bottom: 40px;
+      position: relative;
+      overflow: hidden;
+      animation: holidayPageIn 0.7s cubic-bezier(0.22,1,0.36,1) both;
+      background-size: cover !important;
+      background-position: center !important;
+    }
+    /* Dark overlay on top of photo */
+    .holiday-page::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--h-overlay, rgba(0,0,0,0.48));
+      z-index: 0;
+    }
+    /* Shimmer on top of overlay */
+    .holiday-page::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.08) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 1;
+    }
+    /* All children above overlay */
+    .h-particles, .h-icon, .h-img, .h-deco, .h-title, .h-subtitle, .h-badge {
+      position: relative;
+      z-index: 2;
+    }
+    /* Holiday photo image (centered, no circle) */
+    .h-img {
+      width: clamp(160px, 30vw, 260px);
+      height: clamp(100px, 18vw, 160px);
+      object-fit: cover;
+      border-radius: 14px;
+      margin-bottom: 18px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+      animation: imgFloat 3.5s ease-in-out infinite;
+    }
+    @keyframes imgFloat {
+      0%,100% { transform: translateY(0) scale(1);    }
+      50%      { transform: translateY(-10px) scale(1.03); }
+    }
+
+    /* Floating particles */
+    .h-particles {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .h-p {
+      position: absolute;
+      top: -60px;
+      font-size: clamp(1.1rem, 2.5vw, 1.8rem);
+      opacity: 0;
+      animation: pFall linear infinite;
+    }
+    @keyframes pFall {
+      0%   { transform: translateY(0)    rotate(0deg)   scale(0.7); opacity: 0; }
+      8%   { opacity: 0.85; }
+      90%  { opacity: 0.7; }
+      100% { transform: translateY(110vh) rotate(420deg) scale(1.1); opacity: 0; }
+    }
+
+    /* Main emoji / icon */
+    .h-icon {
+      font-size: clamp(4rem, 10vw, 6.5rem);
+      line-height: 1;
+      margin-bottom: 24px;
+      z-index: 1;
+      filter: drop-shadow(0 8px 24px rgba(0,0,0,0.25));
+      animation: iconFloat 3.5s ease-in-out infinite;
+    }
+    @keyframes iconFloat {
+      0%,100% { transform: translateY(0)   rotate(0deg); }
+      30%     { transform: translateY(-14px) rotate(4deg); }
+      70%     { transform: translateY(-7px)  rotate(-3deg); }
+    }
+
+    /* Secondary decorative emojis */
+    .h-deco {
+      display: flex;
+      gap: 14px;
+      margin-bottom: 28px;
+      z-index: 1;
+    }
+    .h-deco span {
+      font-size: 1.8rem;
+      animation: decoSpin 4s ease-in-out infinite;
+    }
+    .h-deco span:nth-child(2) { animation-delay: 0.5s; animation-direction: alternate-reverse; }
+    .h-deco span:nth-child(3) { animation-delay: 1s; }
+    @keyframes decoSpin {
+      0%,100% { transform: scale(1) rotate(0deg); }
+      50%     { transform: scale(1.15) rotate(10deg); }
+    }
+
+    .h-title {
+      font-size: clamp(1.7rem, 4.5vw, 2.8rem);
+      font-weight: 900;
+      color: #fff;
+      text-shadow: 0 2px 16px rgba(0,0,0,0.22);
+      margin-bottom: 12px;
+      z-index: 1;
+      letter-spacing: -0.5px;
+    }
+    .h-subtitle {
+      font-size: clamp(0.92rem, 2vw, 1.08rem);
+      color: rgba(255,255,255,0.88);
+      max-width: 480px;
+      line-height: 1.65;
+      margin-bottom: 36px;
+      z-index: 1;
+    }
+    .h-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.18);
+      border: 1.5px solid rgba(255,255,255,0.32);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 50px;
+      padding: 11px 22px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.9rem;
+      z-index: 1;
+      animation: badgePop 0.5s 0.5s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes badgePop {
+      from { opacity:0; transform:scale(0.8); }
+      to   { opacity:1; transform:scale(1); }
+    }
+
+    /* Flag of Acre - CSS art */
+    .acre-flag {
+      width: 180px;
+      height: 112px;
+      border-radius: 6px;
+      overflow: hidden;
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      animation: flagWave 2.8s ease-in-out infinite;
+      transform-origin: left center;
+    }
+    @keyframes flagWave {
+      0%,100% { transform: perspective(300px) rotateY(0deg); }
+      50%      { transform: perspective(300px) rotateY(-12deg); }
+    }
+    .acre-flag-bg {
+      width:100%; height:100%;
+      background: #006B3F;
+      position: relative;
+    }
+    .acre-flag-star {
+      position: absolute;
+      top: 50%; left: 32px;
+      transform: translateY(-50%);
+      font-size: 2rem;
+      filter: drop-shadow(0 0 6px rgba(255,215,0,0.6));
+    }
+    .acre-flag-text {
+      position: absolute;
+      top: 8px; right: 12px;
+      font-size: 0.7rem;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: 3px;
+    }
+    .acre-flag-stripe {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 28px;
+      background: #C8102E;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <img src="logo.png" alt="Senac">
+        <div class="logo-text">
+          <span class="logo-text-main" id="header-espaco-nome">Sistema</span>
+          <span class="logo-text-sub">Reservas • Horários</span>
+        </div>
+      </a>
+      <nav>
+        <a href="index.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span class="nav-text">Início</span>
+        </a>
+        <a href="calendario.html" class="nav-link active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg>
+          <span class="nav-text">Calendário</span>
+        </a>
+        <a href="reservas.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/><path d="m3 12 2 2 4-4"/></svg>
+          <span class="nav-text">Reservas</span>
+        </a>
+        <a href="admin.html" class="nav-link nav-admin-hidden">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 9.7a1 1 0 0 1-.68 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 .76-.97l8-2a1 1 0 0 1 .48 0l8 2A1 1 0 0 1 20 6Z"/></svg>
+          <span class="nav-text">Admin</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Page Body -->
+  <main class="page">
+    <!-- Back Link (Will be updated dynamically to return to the active month) -->
+    <a href="calendario.html" id="back-link" class="back-link" title="Voltar ao calendário">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      <span class="back-link-label">Voltar ao calendário</span>
+    </a>
+
+    <div class="page-header" style="margin-bottom: 8px;">
+      <div class="page-title-area">
+        <h1 class="page-title" id="day-title">Horários</h1>
+        <p class="page-subtitle" id="dia-espaco-subtitle">Carregando...</p>
+      </div>
+    </div>
+
+    <!-- Alert for past dates -->
+    <div class="info-alert" id="past-alert" style="display: none; margin-bottom: 24px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>
+      </svg>
+      <span>Esta data já passou e não pode receber novas reservas.</span>
+    </div>
+
+    <!-- Slots Grid Container -->
+    <div class="slots-wrapper" id="slots-container">
+      <!-- Dynamic list loaded by JS -->
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>© <span id="footer-year">2026</span> Senac · Sistema interno</p>
+    </div>
+  </footer>
+
+  <script src="reservations.js"></script>
+  <script>
+    document.getElementById("footer-year").textContent = new Date().getFullYear();
+
+    // Espaço ativo
+    const espaco = getEspacoAtivo();
+    document.getElementById("header-espaco-nome").textContent = espaco.nome;
+    document.title = `Horários — ${espaco.nome}`;
+    const espacoParam = `espaco=${espaco.id}`;
+    document.getElementById("dia-espaco-subtitle").textContent =
+      `${espaco.nome}${espaco.sala ? ' • ' + espaco.sala : ''} · Funcionamento das 07h30 às 22h`;
+
+    const date      = getQueryParam("data");
+    const container = document.getElementById("slots-container");
+    const dayTitle  = document.getElementById("day-title");
+    const backLink  = document.getElementById("back-link");
+    const pastAlert = document.getElementById("past-alert");
+
+    // Re-renderiza quando o Firebase sincronizar novas reservas
+    window.addEventListener("reservations-changed", () => {
+      if (date && !document.body.classList.contains('holiday-mode')) {
+        renderDiaView();
+      }
+    });
+
+    // ── Holiday themes map ──────────────────────────────────────────────────
+    // Each theme: photo = filename in fotos/, overlay = rgba color, deco = particle emojis, msg = subtitle text
+    function getHolidayTheme(nome) {
+      const n = nome.toLowerCase();
+      const P = 'fotos/'; // photos folder
+
+      if (n.includes("confraterniz") || n.includes("ano novo"))
+        return { photo: P+'ano-novo.jpg',                            overlay:'rgba(10,10,80,0.52)',  deco:["🎆","🎇","✨"],  title: nome, msg: "Feliz Ano Novo! Que seja um ano repleto de conquistas e alegria!" };
+      if (n.includes("católico") || n.includes("catolic"))
+        return { photo: P+'dia-do-catolico-no-acre.webp',            overlay:'rgba(15,30,100,0.52)', deco:["✝️","🕊️","🙏"],  title: nome, msg: "Dia do Católico no Acre — Fé, amor e esperança!" };
+      if (n.includes("evangél") || n.includes("evangel"))
+        return { photo: P+'dia-do-evangelico-no-acre.jpg',           overlay:'rgba(0,60,50,0.52)',   deco:["✝️","🕊️","💙"],  title: nome, msg: "Dia do Evangélico no Acre — A palavra que transforma vidas!" };
+      if (n.includes("carnaval"))
+        return { photo: P+'carnaval.webp',                           overlay:'rgba(80,5,100,0.48)',  deco:["🎭","🎶","💃"],  title: nome, msg: "É carnaval! A maior festa popular do Brasil! 🌈" };
+      if (n.includes("sexta-feira santa") || n.includes("paixão") || n.includes("pascoa") || n.includes("páscoa"))
+        return { photo: P+'sexta-feira-santa-paixao-de-cristo.jpg',  overlay:'rgba(20,20,20,0.55)',  deco:["✝️","🌸","🙏"],  title: nome, msg: "Uma data de fé, esperança e renovação para todos!" };
+      if (n.includes("mulher"))
+        return { photo: P+'dia-internacional-da-mulher-no-acre.jpg', overlay:'rgba(80,5,80,0.48)',   deco:["💜","🌹","💐"],  title: nome, msg: "Celebrando a força, a garra e a beleza de todas as mulheres!" };
+      if (n.includes("tiradentes"))
+        return { photo: P+'tiradentes.jpg',                          overlay:'rgba(40,10,90,0.52)',  deco:["⚔️","🏛️","📜"],  title: nome, msg: "Em memória do mártir da Inconfidência Mineira!" };
+      if (n.includes("trabalho"))
+        return { photo: P+'dia-do-trabalho.webp',                    overlay:'rgba(120,5,5,0.50)',   deco:["⚒️","💪","🌟"],  title: nome, msg: "Homenagem a todos os trabalhadores do Brasil!" };
+      if (n.includes("corpus"))
+        return { photo: P+'corpus-christi.webp',                     overlay:'rgba(50,10,100,0.50)', deco:["✝️","🌸","💜"],  title: nome, msg: "Corpus Christi — Solenidade do Corpo e Sangue de Cristo!" };
+      if (n.includes("acre") && !n.includes("brasilé"))
+        return { photo: P+'aniversario-do-acre.jpeg',                overlay:'rgba(0,60,20,0.48)',   deco:["🌿","🦜","⭐"],  title: nome, msg: "Celebramos mais um ano do nosso querido estado do Acre! 🎉" };
+      if (n.includes("brasiléia") || n.includes("brasile"))
+        return { photo: P+'aniversario-de-brasileia.png',            overlay:'rgba(10,50,120,0.48)', deco:["⭐","🎊","🎈"],  title: nome, msg: "Parabéns, Brasiléia! Feliz Aniversário da nossa cidade!" };
+      if (n.includes("pai") && !n.includes("paixão"))
+        return { photo: P+'dia-dos-pais.webp',                       overlay:'rgba(10,30,60,0.52)',  deco:["❤️","🌟","🎁"],  title: nome, msg: "Feliz Dia dos Pais! Uma homenagem a quem nos dá amor e exemplo!" };
+      if (n.includes("amazônia") || n.includes("amazonia"))
+        return { photo: P+'dia-da-amazonia.webp',                    overlay:'rgba(0,50,0,0.48)',    deco:["🌳","🦜","🦋"],  title: nome, msg: "Dia da Amazônia — Preservar é o nosso compromisso com o futuro!" };
+      if (n.includes("independência") || n.includes("independencia"))
+        return { photo: P+'independencia-do-brasil.webp',            overlay:'rgba(0,60,10,0.50)',   deco:["🇧🇷","⭐","🎊"],  title: nome, msg: "7 de Setembro — Independência ou Morte! Viva o Brasil! 🎊" };
+      if (n.includes("aparecida") || n.includes("crianças") || n.includes("criancas")) {
+        // Since Oct 12 is both Nossa Senhora Aparecida and Dia das Crianças, check if we want to display the Crianças theme or combined.
+        if (n.includes("criança") || n.includes("crianca")) {
+          return { photo: P+'dia-das-criancas.png',                  overlay:'rgba(180,50,0,0.45)',  deco:["🎈","🎁","⭐"],  title: nome, msg: "Viva a alegria, a imaginação e a inocência das crianças! 🌈" };
+        }
+        return { photo: P+'nossa-senhora-aparecida.webp',            overlay:'rgba(10,30,100,0.50)', deco:["🕊️","💙","⭐"],  title: nome, msg: "Dia de Nossa Senhora Aparecida, Padroeira do Brasil!" };
+      }
+      if (n.includes("finados"))
+        return { photo: P+'finados.png',                             overlay:'rgba(20,20,30,0.58)',  deco:["🕯️","🌹","🙏"],  title: nome, msg: "Um dia de reflexão e de carinhosa memória aos que partiram." };
+      if (n.includes("república") || n.includes("republica"))
+        return { photo: P+'proclamacao-da-republica.png',            overlay:'rgba(0,50,20,0.50)',   deco:["🏛️","🇧🇷","🎊"],  title: nome, msg: "Proclamação da República — 15 de Novembro de 1889!" };
+      if (n.includes("petrópolis") || n.includes("petropo"))
+        return { photo: P+'tratado-de-petropolis.jpg',               overlay:'rgba(0,55,20,0.50)',   deco:["📜","🤝","🏔️"],  title: nome, msg: "Tratado de Petrópolis — Um marco histórico para o nosso Acre!" };
+      if (n.includes("consciência negra") || n.includes("consciencia negra"))
+        return { photo: P+'consciencia-negra.jpg',                   overlay:'rgba(10,10,10,0.52)',  deco:["✊","🌍","❤️"],  title: nome, msg: "Celebrando a cultura, a história e a resistência negra no Brasil!" };
+      if (n.includes("mãe") || n.includes("mae"))
+        return { photo: P+'dia-das-maes.jpg',                        overlay:'rgba(100,0,60,0.48)',  deco:["💐","❤️","🌹"],  title: nome, msg: "Feliz Dia das Mães! Nosso amor eterno por você!" };
+      if (n.includes("natal"))
+        return { photo: P+'natal.jpeg',                              overlay:'rgba(0,40,10,0.50)',   deco:["🎄","⛄","❄️"],  title: nome, msg: "Que o amor, a paz e a alegria estejam em seu coração neste Natal!" };
+      // Default — no photo
+      return { photo: null, overlay:'rgba(15,40,100,0.7)', deco:["⭐","✨","🎊"], title: nome, msg: "O auditório está fechado nesta data especial." };
+    }
+
+    // ── Build animated particle emojis ─────────────────────────────────────
+    function buildParticles(decoList) {
+      let html = "";
+      const pool = [...decoList, ...decoList, ...decoList]; // triplicate for density
+      pool.forEach((emoji, i) => {
+        const left    = (7 + (i * 29) % 88).toFixed(1);
+        const delay   = ((i * 0.55) % 6).toFixed(2);
+        const dur     = (5 + (i * 1.3) % 5).toFixed(1);
+        const size    = (1.2 + (i * 0.17) % 0.8).toFixed(2);
+        html += `<span class="h-p" style="left:${left}%;animation-delay:${delay}s;animation-duration:${dur}s;font-size:${size}rem">${emoji}</span>`;
+      });
+      return html;
+    }
+
+    // ── Render holiday themed page ──────────────────────────────────────────
+    function renderHolidayPage(feriadoNome) {
+      const theme = getHolidayTheme(feriadoNome);
+      const particles = buildParticles(theme.deco);
+      const decoHTML = theme.deco.map(e => `<span>${e}</span>`).join("");
+
+      // Background style: photo or gradient
+      let bgStyle;
+      if (theme.photo) {
+        bgStyle = `background: url('${theme.photo}') center/cover no-repeat; --h-overlay: ${theme.overlay};`;
+      } else {
+        bgStyle = `background: linear-gradient(135deg,#1a4f9c,#0d3272);`;
+      }
+
+      // Main visual: big emoji only (photo is already the background)
+      const mainIcon = theme.photo
+        ? ``
+        : `<div class="h-icon" role="img" aria-label="${theme.title}">${theme.icon || '🎉'}</div>`;
+
+      return `
+        <div class="holiday-page" style="${bgStyle}">
+          <div class="h-particles">${particles}</div>
+          ${mainIcon}
+          <div class="h-deco">${decoHTML}</div>
+          <h2 class="h-title">${theme.title}</h2>
+          <p class="h-subtitle">${theme.msg}</p>
+          <div class="h-badge">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16">
+              <rect x="3" y="11" width="18" height="11" rx="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            Aberto mediante autorização da coordenação
+          </div>
+        </div>`;
+    }
+
+    // ── Main logic ──
+    function renderDiaView() {
+      if (!date) {
+        container.innerHTML = `<div class="empty-state"><p>Data inválida ou não especificada.</p></div>`;
+      } else {
+        dayTitle.textContent = `Reservas — ${formatDatePT(date)}`;
+
+        const parts = date.split("-");
+        if (parts.length === 3) {
+          backLink.href = `calendario.html?${espacoParam}&ano=${parseInt(parts[0],10)}&mes=${parseInt(parts[1],10)}`;
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const dayDate = new Date(date + "T00:00:00");
+        const isPast = dayDate < today;
+        if (isPast) pastAlert.style.display = "flex";
+
+        const feriadoNome = getFeriadoNome(date);
+
+        // ── HOLIDAY: show themed page ──
+        if (feriadoNome) {
+          document.body.classList.add('holiday-mode');
+          container.innerHTML = renderHolidayPage(feriadoNome);
+
+        // ── REGULAR DAY: show reservations + make reservation button ──
+        } else {
+          document.body.classList.remove('holiday-mode');
+          const dayReservations = getReservationsByDate(date, espaco.id);
+
+          let html = '';
+
+          // Existing reservations
+          if (dayReservations.length > 0) {
+            html += `<div style="margin-bottom:20px">`;
+            dayReservations.forEach((r, idx) => {
+              const delay = (idx * 0.08).toFixed(2);
+              html += `
+                <div class="slot-card taken" style="margin-bottom:14px; animation-delay: ${delay}s">
+                  <div class="slot-header">
+                    <span class="slot-time">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      ${escapeHtml(r.slot || 'Horário não informado')}
+                    </span>
+                    <span class="slot-badge">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px"><line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/></svg>
+                      Reservado
+                    </span>
+                  </div>
+                  <div class="slot-body">
+                    <div class="slot-who">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                      <div style="display: flex; flex-direction: column;">
+                        <span>${escapeHtml(r.name)}</span>
+                        ${r.cargo ? `<span style="font-size: 0.75rem; color: var(--danger); font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.85;">${escapeHtml(r.cargo)}</span>` : ''}
+                      </div>
+                    </div>
+                    <div class="slot-sector">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 14px; height: 14px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                      ${escapeHtml(r.sector)}
+                    </div>
+                    ${r.reason ? `<div class="slot-reason">${escapeHtml(r.reason)}</div>` : ''}
+                  </div>
+                </div>`;
+            });
+            html += `</div>`;
+          }
+
+          // Free reservation button (only for future dates)
+          if (!isPast) {
+            const delay = (dayReservations.length * 0.08).toFixed(2);
+            html += `
+              <a href="reservar.html?data=${date}&${espacoParam}" class="slot-card free" style="display:flex;align-items:center;justify-content:space-between;padding:20px 22px;text-decoration:none;border:2px dashed var(--primary);background:rgba(0,71,143,0.04); animation-delay: ${delay}s">
+                <span style="display:flex;align-items:center;gap:10px;font-weight:700;color:var(--primary);font-size:1rem">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:22px;height:22px">
+                    <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
+                  </svg>
+                  Fazer nova reserva neste dia
+                </span>
+                <span class="slot-badge" style="background:rgba(0,71,143,0.12);color:var(--primary);border:none">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width:11px;height:11px"><polyline points="20 6 9 17 4 12"/></svg>
+                  Livre
+                </span>
+              </a>`;
+          } else if (dayReservations.length === 0) {
+            html += `<div class="empty-state"><p>Nenhuma reserva nesta data.</p></div>`;
+          }
+
+          container.innerHTML = html;
+        }
+      }
+    }
+
+    // Renderiza na primeira carga
+    renderDiaView();
+  </script>
+</body>
+</html>

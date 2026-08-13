@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ver Reservas — Espaços Senac</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .nav-text {
+      display: none;
+    }
+    @media (min-width: 640px) {
+      .nav-text {
+        display: inline;
+      }
+    }
+    .filter-tab {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1.5px solid transparent;
+      background: transparent;
+      color: var(--muted-foreground);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-tab.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 2px 4px rgba(0,71,143,0.2);
+    }
+    .filter-tab:not(.active):hover {
+      background: rgba(0,71,143,0.08);
+      color: var(--primary);
+    }
+    .filter-bar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .filter-select {
+      padding: 8px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      background: white;
+      color: var(--foreground);
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .filter-select:focus { outline: none; border-color: var(--primary); }
+    .badge-espaco {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      background: rgba(0,71,143,0.10);
+      color: #00478f;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <img src="logo.png" alt="Senac">
+        <div class="logo-text">
+          <span class="logo-text-main">Reservas</span>
+          <span class="logo-text-sub">Todos os Espaços</span>
+        </div>
+      </a>
+      <nav>
+        <a href="index.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span class="nav-text">Início</span>
+        </a>
+        <a href="calendario.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg>
+          <span class="nav-text">Calendário</span>
+        </a>
+        <a href="reservas.html" class="nav-link active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/><path d="m3 12 2 2 4-4"/></svg>
+          <span class="nav-text">Reservas</span>
+        </a>
+        <a href="admin.html" class="nav-link nav-admin-hidden">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 9.7a1 1 0 0 1-.68 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 .76-.97l8-2a1 1 0 0 1 .48 0l8 2A1 1 0 0 1 20 6Z"/></svg>
+          <span class="nav-text">Admin</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Page Body -->
+  <main class="page">
+    <a href="index.html" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Voltar à capa
+    </a>
+
+    <div class="page-header" style="align-items: flex-start; margin-bottom: 16px; flex-direction: column; gap: 14px;">
+      <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; flex-wrap: wrap; gap: 12px;">
+        <div class="page-title-area">
+          <h1 class="page-title">Ver Reservas</h1>
+          <p class="page-subtitle" id="reservations-count">Carregando agendamentos...</p>
+        </div>
+        <div class="toolbar-search" style="max-width: 320px; width: 100%;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/>
+          </svg>
+          <input type="text" id="search-input" class="toolbar-input" placeholder="Pesquisar por nome, data ou turma" />
+        </div>
+      </div>
+      <div class="filter-bar">
+        <div style="display: flex; gap: 8px; flex: 1; min-width: 280px; padding: 4px; background: rgba(0,71,143,0.04); border-radius: 12px; border: 1px solid var(--border);">
+          <button id="btn-ativas" class="filter-tab active" style="flex: 1;" onclick="setTab('ativas')">Próximas Reservas</button>
+          <button id="btn-historico" class="filter-tab" style="flex: 1;" onclick="setTab('historico')">Histórico</button>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+          <label style="font-size:0.82rem;font-weight:600;color:var(--muted-foreground);">Filtrar por espaço:</label>
+          <select id="filter-espaco" class="filter-select">
+            <option value="">Todos os espaços</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tables and Mobile Lists (Populated dynamically) -->
+    <div id="reservations-list-container">
+      <!-- Loaded dynamically by JS -->
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>© <span id="footer-year">2026</span> Senac · Sistema interno</p>
+    </div>
+  </footer>
+
+  <script src="reservations.js"></script>
+  <script>
+    document.getElementById("footer-year").textContent = new Date().getFullYear();
+
+    // Preenche o select de espaços
+    const filterSelect = document.getElementById("filter-espaco");
+    ESPACOS.forEach(e => {
+      const opt = document.createElement("option");
+      opt.value = e.id;
+      opt.textContent = e.nome + (e.sala ? ` (${e.sala})` : '');
+      filterSelect.appendChild(opt);
+    });
+
+    const searchInput = document.getElementById("search-input");
+    const countText = document.getElementById("reservations-count");
+    const container = document.getElementById("reservations-list-container");
+
+    let currentTab = 'ativas'; // 'ativas' ou 'historico'
+
+    function setTab(tab) {
+      currentTab = tab;
+      document.getElementById('btn-ativas').classList.toggle('active', tab === 'ativas');
+      document.getElementById('btn-historico').classList.toggle('active', tab === 'historico');
+      render();
+    }
+
+    function render() {
+      const q = searchInput.value.trim().toLowerCase();
+      const espacoFiltro = filterSelect.value;
+      const allReservations = getAllReservations();
+      
+      const now = new Date();
+      const todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+      
+      const filtered = allReservations
+        .filter(r => {
+          if (espacoFiltro && r.espaco !== espacoFiltro) return false;
+          
+          if (currentTab === 'ativas' && r.date < todayStr) return false;
+          if (currentTab === 'historico' && r.date >= todayStr) return false;
+
+          if (!q) return true;
+          const formattedDate = formatDatePT(r.date);
+          const espacoInfo = getEspacoById(r.espaco || 'auditorio');
+          return [r.name, r.sector, r.date, formattedDate, r.reason, espacoInfo.nome, espacoInfo.sala]
+            .join(" ")
+            .toLowerCase()
+            .includes(q);
+        })
+        .sort((a, b) => {
+          if (currentTab === 'historico') {
+            return (b.date + b.slot).localeCompare(a.date + a.slot);
+          }
+          return (a.date + a.slot).localeCompare(b.date + b.slot);
+        });
+
+      countText.textContent = `${filtered.length} reserva${filtered.length === 1 ? '' : 's'} encontrada${filtered.length === 1 ? '' : 's'}.`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/>
+            </svg>
+            <p style="margin: 0; font-weight: 500;">
+              ${allReservations.length === 0 
+                ? 'Nenhuma reserva cadastrada ainda.' 
+                : 'Nenhuma reserva encontrada para sua busca.'}
+            </p>
+          </div>
+        `;
+        return;
+      }
+
+      // Render Desktop view (Table)
+      const tableHtml = `
+        <div class="table-wrap desktop-only" style="margin-bottom: 24px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+          <table style="width: 100%; border-collapse: collapse; background: white;">
+            <thead style="background: var(--primary); color: white;">
+              <tr>
+                <th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 0.9rem;">Data</th>
+                <th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 0.9rem;">Horário</th>
+                <th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 0.9rem;">Local</th>
+                <th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 0.9rem;">Responsável</th>
+                <th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 0.9rem;">Setor / Turma</th>
+                <th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 0.9rem;">Motivo</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(r => {
+                const esp = getEspacoById(r.espaco || 'auditorio');
+                return `
+                <tr style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f8fafc'" onmouseout="this.style.backgroundColor='transparent'">
+                  <td style="padding: 16px; font-weight: 700; color: var(--foreground); font-size: 0.95rem;">${formatDatePT(r.date)}</td>
+                  <td style="padding: 16px; font-weight: 700; color: var(--primary); font-size: 0.9rem;">${r.slot}</td>
+                  <td style="padding: 16px;">
+                    <span style="background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; display: inline-block;">
+                      ${esp.nome}${esp.sala ? ' ' + esp.sala : ''}
+                    </span>
+                  </td>
+                  <td style="padding: 16px;">
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                      <span style="font-weight: 700; color: var(--foreground); font-size: 0.95rem;">${escapeHtml(r.name)}</span>
+                      ${r.cargo ? `<span style="font-size: 0.7rem; color: var(--muted-foreground); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">${escapeHtml(r.cargo)}</span>` : ''}
+                    </div>
+                  </td>
+                  <td style="padding: 16px;">
+                    <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(247, 166, 20, 0.15); padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; color: #a16207;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 14px; height: 14px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                      ${escapeHtml(r.sector)}
+                    </div>
+                  </td>
+                  <td style="padding: 16px;">
+                    <div style="font-size: 0.85rem; color: var(--primary-dark); font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; max-width: 250px;" title="${escapeHtml(r.reason)}">
+                      ${escapeHtml(r.reason)}
+                    </div>
+                  </td>
+                </tr>`;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      // Render Mobile view (Cards)
+      const cardsHtml = `
+        <div class="mobile-cards">
+          ${filtered.map(r => {
+            const esp = getEspacoById(r.espaco || 'auditorio');
+            return `
+            <div class="mobile-card" style="border-left: 4px solid var(--primary); padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: #fff; margin-bottom: 16px; transition: transform 0.2s;">
+              <div class="mobile-card-row" style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <span class="mobile-card-date" style="background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.05em;">${formatDatePT(r.date)}</span>
+                <span style="font-weight: 800; color: var(--primary); font-size: 0.95rem;">${r.slot}</span>
+              </div>
+              
+              <div style="margin-bottom: 14px;">
+                <span style="background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 700;">
+                  ${esp.nome}${esp.sala ? ' • ' + esp.sala : ''}
+                </span>
+              </div>
+              
+              <div class="mobile-card-who" style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px;">
+                <span style="font-weight: 800; font-size: 1.1rem; color: var(--foreground);">${escapeHtml(r.name)}</span>
+                ${r.cargo ? `<span style="font-size: 0.75rem; color: var(--muted-foreground); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">${escapeHtml(r.cargo)}</span>` : ''}
+              </div>
+              
+              <div class="mobile-card-sector" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(247, 166, 20, 0.15); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; color: #a16207; margin-bottom: 12px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 14px; height: 14px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                ${escapeHtml(r.sector)}
+              </div>
+              
+              ${r.reason ? `<div class="mobile-card-reason" style="font-size: 0.9rem; color: var(--primary-dark); font-weight: 600; padding: 10px 12px; background: #f0f7ff; border-radius: 8px; border-left: 3px solid var(--primary);">
+                ${escapeHtml(r.reason)}
+              </div>` : ''}
+            </div>`;
+          }).join('')}
+        </div>
+      `;
+
+      container.innerHTML = tableHtml + cardsHtml;
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+
+    searchInput.addEventListener("input", render);
+    filterSelect.addEventListener("change", render);
+    window.addEventListener("reservations-changed", render);
+    render();
+  </script>
+</body>
+</html>

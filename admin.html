@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Administrativo — Auditório Senac</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    .nav-text {
+      display: none;
+    }
+    @media (min-width: 640px) {
+      .nav-text {
+        display: inline;
+      }
+    }
+    .filter-tab {
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1.5px solid transparent;
+      background: transparent;
+      color: var(--muted-foreground);
+      font-weight: 700;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-tab.active {
+      background: var(--primary);
+      color: white;
+      border-color: var(--primary);
+      box-shadow: 0 2px 4px rgba(0,71,143,0.2);
+    }
+    .filter-tab:not(.active):hover {
+      background: rgba(0,71,143,0.08);
+      color: var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="index.html" class="logo">
+        <img src="logo.png" alt="Senac">
+        <div class="logo-text">
+          <span class="logo-text-main">Auditório</span>
+          <span class="logo-text-sub">Sistema de Reservas</span>
+        </div>
+      </a>
+      <nav>
+        <a href="index.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span class="nav-text">Início</span>
+        </a>
+        <a href="calendario.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg>
+          <span class="nav-text">Calendário</span>
+        </a>
+        <a href="reservas.html" class="nav-link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/><path d="m3 12 2 2 4-4"/></svg>
+          <span class="nav-text">Reservas</span>
+        </a>
+        <a href="admin.html" class="nav-link active">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 9.7a1 1 0 0 1-.68 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 .76-.97l8-2a1 1 0 0 1 .48 0l8 2A1 1 0 0 1 20 6Z"/></svg>
+          <span class="nav-text">Admin</span>
+        </a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Page Body -->
+  <main class="page">
+    <a href="index.html" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Voltar à capa
+    </a>
+
+    <!-- Login Gate -->
+    <div id="login-gate-container" style="max-width: 420px; margin: 40px auto 80px;">
+      <div class="form-card">
+        <div style="display: flex; align-items: center; gap: 8px; color: var(--primary); margin-bottom: 8px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 24px; height: 24px;">
+            <path d="M20 13c0 5-3.5 7.5-7.66 9.7a1 1 0 0 1-.68 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 .76-.97l8-2a1 1 0 0 1 .48 0l8 2A1 1 0 0 1 20 6Z"/>
+          </svg>
+          <h1 style="font-size: 1.25rem; font-weight: 800;">Painel Administrativo</h1>
+        </div>
+        <p style="font-size: 0.875rem; color: var(--muted-foreground); margin-bottom: 24px;">Acesso restrito aos responsáveis pelo auditório.</p>
+        
+        <form id="login-form">
+          <!-- Campo de email: aparece quando Firebase Auth estiver ativo -->
+          <div class="form-field" id="email-field" style="display: none;">
+            <label for="email-input">E-mail</label>
+            <input type="email" id="email-input" class="form-input" placeholder="admin@exemplo.com" />
+          </div>
+
+          <div class="form-field">
+            <label for="pwd-input" id="pwd-label">Senha de acesso</label>
+            <input type="password" id="pwd-input" class="form-input" required autofocus />
+          </div>
+
+          <div class="error-box" id="login-error" style="display: none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>
+            </svg>
+            <span id="login-error-msg">Credenciais inválidas.</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary" style="width: 100%;">Entrar</button>
+          
+          <p id="local-auth-hint" style="font-size: 0.75rem; color: var(--muted-foreground); margin-top: 16px; text-align: center;">
+            Senha padrão: <code style="background: #f1f5f9; padding: 2px 6px; border-radius: 4px; font-family: monospace;">senac2026</code>
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <!-- Admin Dashboard (Hidden by default) -->
+    <div id="admin-dashboard-container" style="display: none;">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 24px;">
+        <div class="page-title-area" style="margin-bottom: 0;">
+          <h1 class="page-title" style="display: flex; align-items: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 28px; height: 28px; color: var(--primary);">
+              <path d="M20 13c0 5-3.5 7.5-7.66 9.7a1 1 0 0 1-.68 0C7.5 20.5 4 18 4 13V6a1 1 0 0 1 .76-.97l8-2a1 1 0 0 1 .48 0l8 2A1 1 0 0 1 20 6Z"/>
+            </svg>
+            Painel Administrativo
+          </h1>
+          <p class="page-subtitle">Gerencie todas as reservas do auditório.</p>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button id="btn-new-reservation" class="btn btn-primary btn-sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+            Nova reserva
+          </button>
+          <button id="btn-export-csv" class="btn btn-secondary btn-sm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+            Exportar CSV
+          </button>
+          <button id="btn-export-pdf" class="btn btn-secondary btn-sm" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); color: var(--danger);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
+            Relatório PDF
+          </button>
+          <button id="btn-logout" class="btn btn-sm" style="background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); color: var(--foreground);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
+            Sair
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div style="display: flex; gap: 8px; max-width: 400px; margin-bottom: 20px; padding: 4px; background: rgba(0,71,143,0.04); border-radius: 12px; border: 1px solid var(--border);">
+        <button id="btn-ativas-admin" class="filter-tab active" style="flex: 1;" onclick="setAdminTab('ativas')">Próximas Reservas</button>
+        <button id="btn-historico-admin" class="filter-tab" style="flex: 1;" onclick="setAdminTab('historico')">Histórico</button>
+      </div>
+
+      <!-- Filters Toolbar -->
+      <div class="dashboard-grid">
+        <div class="toolbar-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/>
+          </svg>
+          <input type="text" id="search-filter" class="toolbar-input" placeholder="Buscar..." />
+        </div>
+        
+        <select id="month-filter" class="toolbar-input">
+          <option value="all">Todos os meses</option>
+          <!-- Loaded dynamically -->
+        </select>
+        
+        <input type="text" id="sector-filter" class="toolbar-input" placeholder="Filtrar por setor/turma" />
+      </div>
+
+      <!-- Dashboard Charts -->
+      <div id="dashboard-charts" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 24px;">
+        <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--border);">
+          <h3 style="font-size: 1rem; color: var(--foreground); margin-bottom: 16px; font-weight: 700;">Uso por Setor/Turma</h3>
+          <div style="position: relative; height: 220px; width: 100%;">
+            <canvas id="chart-sectores"></canvas>
+          </div>
+        </div>
+        <div style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); border: 1px solid var(--border);">
+          <h3 style="font-size: 1rem; color: var(--foreground); margin-bottom: 16px; font-weight: 700;">Reservas por Dia da Semana</h3>
+          <div style="position: relative; height: 220px; width: 100%;">
+            <canvas id="chart-dias"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Data lists -->
+      <div id="admin-table-container">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal for Creating/Editing Reservation -->
+  <div class="modal-backdrop" id="reservation-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modal-title-text">Nova reserva</h2>
+        <button class="modal-close" id="modal-close-btn" aria-label="Fechar modal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" x2="6" y1="6" y2="18"/><line x1="6" x2="18" y1="6" y2="18"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="error-box" id="modal-error" style="display: none;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>
+        </svg>
+        <span id="modal-error-message">Erro</span>
+      </div>
+
+      <form id="modal-form">
+        <div class="form-grid-2">
+          <div class="form-field">
+            <label for="modal-date">Data *</label>
+            <input type="date" id="modal-date" name="date" class="form-input" required />
+          </div>
+          <div class="form-field">
+            <label>Horário (Início e Fim) *</label>
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <input type="time" id="modal-time-start" class="form-input" required />
+              <span style="color: var(--muted-foreground); font-weight: 600;">às</span>
+              <input type="time" id="modal-time-end" class="form-input" required />
+            </div>
+          </div>
+        </div>
+
+        <div class="form-field">
+          <label for="modal-name">Nome *</label>
+          <input type="text" id="modal-name" name="name" class="form-input" required maxlength="120" />
+        </div>
+        
+        <div class="form-field">
+          <label for="modal-sector">Setor/Turma *</label>
+          <input type="text" id="modal-sector" name="sector" class="form-input" required maxlength="120" />
+        </div>
+
+        <div class="form-field">
+          <label for="modal-reason">Motivo *</label>
+          <input type="text" id="modal-reason" name="reason" class="form-input" required maxlength="500" />
+        </div>
+
+        <div class="form-field">
+          <label for="modal-contact">Contato *</label>
+          <input type="text" id="modal-contact" name="contact" class="form-input" required maxlength="60" />
+        </div>
+
+        <div class="form-field">
+          <label for="modal-notes">Observações</label>
+          <textarea id="modal-notes" name="notes" class="form-input" rows="2" maxlength="500"></textarea>
+        </div>
+
+        <div style="display: flex; gap: 10px; justify-content: flex-end; margin-top: 24px;">
+          <button type="button" class="btn btn-secondary btn-sm" id="modal-cancel-btn">Cancelar</button>
+          <button type="submit" class="btn btn-primary btn-sm">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="container">
+      <p>© <span id="footer-year">2026</span> Senac · Sistema interno</p>
+    </div>
+  </footer>
+
+  <script src="reservations.js"></script>
+  
+  <!-- CDN para Gráficos e PDF -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+  
+  <script>
+    document.getElementById("footer-year").textContent = new Date().getFullYear();
+
+    const AUTH_KEY      = "senac_admin_auth";
+    const ADMIN_PASSWORD = "senac2026";
+
+    const loginGate       = document.getElementById("login-gate-container");
+    const adminDashboard  = document.getElementById("admin-dashboard-container");
+    const loginForm       = document.getElementById("login-form");
+    const loginError      = document.getElementById("login-error");
+    const loginErrorMsg   = document.getElementById("login-error-msg");
+    const pwdInput        = document.getElementById("pwd-input");
+    const emailInput      = document.getElementById("email-input");
+    const emailField      = document.getElementById("email-field");
+    const localAuthHint   = document.getElementById("local-auth-hint");
+    const pwdLabel        = document.getElementById("pwd-label");
+
+    const monthFilter    = document.getElementById("month-filter");
+    const searchFilter   = document.getElementById("search-filter");
+    const sectorFilter   = document.getElementById("sector-filter");
+    const tableContainer = document.getElementById("admin-table-container");
+
+    const modal            = document.getElementById("reservation-modal");
+    const modalForm        = document.getElementById("modal-form");
+    const modalTitle       = document.getElementById("modal-title-text");
+    const modalError       = document.getElementById("modal-error");
+    const modalErrorMessage = document.getElementById("modal-error-message");
+    const modalSlotSelect  = document.getElementById("modal-slot");
+
+    let editingId = null;
+
+    // ── Aguarda Firebase estar disponível antes de decidir o modo de auth ──
+    function setupAuthUI() {
+      const auth = window._getFirebaseAuth ? window._getFirebaseAuth() : null;
+
+      if (auth && window._isFirebaseReady && window._isFirebaseReady()) {
+        // === MODO FIREBASE AUTH ===
+        emailField.style.display   = "block";
+        emailInput.required        = true;
+        localAuthHint.style.display = "none";
+        pwdLabel.textContent       = "Senha";
+
+        // Escuta estado de autenticação
+        auth.onAuthStateChanged(user => {
+          if (user) {
+            sessionStorage.setItem(AUTH_KEY, "firebase");
+            loginGate.style.display = "none";
+            initDashboard();
+          } else if (sessionStorage.getItem(AUTH_KEY) === "firebase") {
+            sessionStorage.removeItem(AUTH_KEY);
+          }
+        });
+
+        loginForm.addEventListener("submit", e => {
+          e.preventDefault();
+          loginError.style.display = "none";
+          const email    = emailInput.value.trim();
+          const password = pwdInput.value;
+          auth.signInWithEmailAndPassword(email, password)
+            .catch(err => {
+              loginErrorMsg.textContent = "E-mail ou senha inválidos.";
+              loginError.style.display  = "flex";
+            });
+        });
+
+        document.getElementById("btn-logout").addEventListener("click", () => {
+          auth.signOut().then(() => {
+            sessionStorage.removeItem(AUTH_KEY);
+            window.location.reload();
+          });
+        });
+
+      } else {
+        // === MODO LOCAL (sem Firebase) ===
+        if (sessionStorage.getItem(AUTH_KEY) === "1") {
+          initDashboard();
+        }
+
+        loginForm.addEventListener("submit", e => {
+          e.preventDefault();
+          loginError.style.display = "none";
+          if (pwdInput.value === ADMIN_PASSWORD) {
+            sessionStorage.setItem(AUTH_KEY, "1");
+            initDashboard();
+          } else {
+            loginErrorMsg.textContent = "Senha incorreta.";
+            loginError.style.display  = "flex";
+          }
+        });
+
+        document.getElementById("btn-logout").addEventListener("click", () => {
+          sessionStorage.removeItem(AUTH_KEY);
+          window.location.reload();
+        });
+      }
+    }
+
+    // Tenta configurar a UI de auth após o Firebase ser inicializado
+    // (pode levar alguns milissegundos para os SDKs carregarem)
+    let _authSetupDone = false;
+    function trySetupAuth() {
+      if (_authSetupDone) return;
+      _authSetupDone = true;
+      setupAuthUI();
+    }
+    // Tenta após 1s (tempo para os SDKs do Firebase carregarem)
+    setTimeout(trySetupAuth, 1000);
+    // Também tenta imediatamente (caso Firebase já esteja pronto)
+    trySetupAuth();
+
+    let chartSectoresInstance = null;
+    let chartDiasInstance = null;
+
+    function initDashboard() {
+      loginGate.style.display = "none";
+      adminDashboard.style.display = "block";
+
+      // Fill Month dropdown
+      monthFilter.innerHTML = `<option value="all">Todos os meses</option>` + 
+        MONTHS_PT.map((m, i) => `<option value="${pad(i + 1)}">${m}</option>`).join("");
+
+      // Event listeners for dashboard controls
+      document.getElementById("btn-new-reservation").addEventListener("click", () => openModal());
+      document.getElementById("btn-export-csv").addEventListener("click", exportCSV);
+      document.getElementById("btn-export-pdf").addEventListener("click", exportPDF);
+      document.getElementById("modal-close-btn").addEventListener("click", closeModal);
+      document.getElementById("modal-cancel-btn").addEventListener("click", closeModal);
+      
+      searchFilter.addEventListener("input", renderDashboardData);
+      monthFilter.addEventListener("change", renderDashboardData);
+      sectorFilter.addEventListener("input", renderDashboardData);
+      
+      modalForm.addEventListener("submit", handleModalSubmit);
+      window.addEventListener("reservations-changed", renderDashboardData);
+
+      renderDashboardData();
+    }
+
+    function openModal(r = null) {
+      editingId = r ? r.id : null;
+      modalTitle.textContent = r ? "Editar reserva" : "Nova reserva (manual)";
+      modalError.style.display = "none";
+      
+      modalForm.reset();
+
+      if (r) {
+        document.getElementById("modal-date").value = r.date;
+        if (r.slot && r.slot.includes(' às ')) {
+          const parts = r.slot.split(' às ');
+          document.getElementById("modal-time-start").value = parts[0];
+          document.getElementById("modal-time-end").value = parts[1];
+        } else {
+          document.getElementById("modal-time-start").value = "";
+          document.getElementById("modal-time-end").value = "";
+        }
+        document.getElementById("modal-name").value = r.name;
+        document.getElementById("modal-sector").value = r.sector;
+        document.getElementById("modal-reason").value = r.reason;
+        document.getElementById("modal-contact").value = r.contact;
+        document.getElementById("modal-notes").value = r.notes || "";
+      } else {
+        document.getElementById("modal-date").value = new Date().toISOString().slice(0, 10);
+        document.getElementById("modal-time-start").value = "08:00";
+        document.getElementById("modal-time-end").value = "10:00";
+      }
+
+      modal.classList.add("show");
+    }
+
+    function closeModal() {
+      modal.classList.remove("show");
+      editingId = null;
+    }
+
+    function handleModalSubmit(e) {
+      e.preventDefault();
+      modalError.style.display = "none";
+
+      const dateVal = document.getElementById("modal-date").value;
+      const tStart = document.getElementById("modal-time-start").value;
+      const tEnd = document.getElementById("modal-time-end").value;
+      const slotVal = (tStart && tEnd) ? `${tStart} às ${tEnd}` : "";
+      const nameVal = document.getElementById("modal-name").value.trim();
+      const sectorVal = document.getElementById("modal-sector").value.trim();
+      const reasonVal = document.getElementById("modal-reason").value.trim();
+      const contactVal = document.getElementById("modal-contact").value.trim();
+      const notesVal = document.getElementById("modal-notes").value.trim();
+
+      if (!dateVal || !tStart || !tEnd || !nameVal || !sectorVal || !reasonVal || !contactVal) {
+        modalErrorMessage.textContent = "Preencha todos os campos obrigatórios.";
+        modalError.style.display = "flex";
+        return;
+      }
+      
+      if (tStart >= tEnd) {
+        modalErrorMessage.textContent = "A hora de término deve ser maior que a hora de início.";
+        modalError.style.display = "flex";
+        return;
+      }
+
+      const data = {
+        date: dateVal,
+        slot: slotVal,
+        name: nameVal.slice(0, 120),
+        sector: sectorVal.slice(0, 120),
+        reason: reasonVal.slice(0, 500),
+        contact: contactVal.slice(0, 60),
+        notes: notesVal.slice(0, 500)
+      };
+
+      if (editingId) {
+        const updateRes = updateReservation(editingId, data);
+        if (updateRes && !updateRes.ok) {
+          modalErrorMessage.textContent = updateRes.error;
+          modalError.style.display = "flex";
+          return;
+        }
+      } else {
+        const createRes = addReservation(data);
+        if (!createRes.ok) {
+          modalErrorMessage.textContent = createRes.error;
+          modalError.style.display = "flex";
+          return;
+        }
+      }
+
+      closeModal();
+    }
+
+    let currentAdminTab = 'ativas'; // 'ativas' ou 'historico'
+
+    function setAdminTab(tab) {
+      currentAdminTab = tab;
+      document.getElementById('btn-ativas-admin').classList.toggle('active', tab === 'ativas');
+      document.getElementById('btn-historico-admin').classList.toggle('active', tab === 'historico');
+      renderDashboardData();
+    }
+
+    function getFilteredReservations() {
+      const q = searchFilter.value.trim().toLowerCase();
+      const selMonth = monthFilter.value;
+      const secVal = sectorFilter.value.trim().toLowerCase();
+      
+      const now = new Date();
+      const todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
+
+      return getReservations()
+        .filter(r => {
+          if (currentAdminTab === 'ativas' && r.date < todayStr) return false;
+          if (currentAdminTab === 'historico' && r.date >= todayStr) return false;
+
+          // Month filter
+          if (selMonth !== "all") {
+            const m = r.date.split("-")[1];
+            if (m !== selMonth) return false;
+          }
+          // Sector filter
+          if (secVal) {
+            if (!r.sector.toLowerCase().includes(secVal)) return false;
+          }
+          // Search query filter
+          if (q) {
+            const formatted = formatDatePT(r.date);
+            const match = [r.name, r.sector, r.reason, r.contact, formatted]
+              .join(" ")
+              .toLowerCase()
+              .includes(q);
+            if (!match) return false;
+          }
+          return true;
+        })
+        .sort((a, b) => {
+          if (currentAdminTab === 'historico') {
+            return (b.date + b.slot).localeCompare(a.date + a.slot);
+          }
+          return (a.date + a.slot).localeCompare(b.date + b.slot);
+        });
+    }
+
+    function renderDashboardData() {
+      const filtered = getFilteredReservations();
+
+      if (filtered.length === 0) {
+        tableContainer.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/>
+            </svg>
+            <p>Nenhuma reserva correspondente aos filtros.</p>
+          </div>
+        `;
+        updateCharts([]);
+        return;
+      }
+      
+      updateCharts(filtered);
+
+      // Desktop Table
+      const tableHtml = `
+        <div class="table-wrap desktop-only" style="margin-bottom: 24px; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+          <table style="width: 100%; border-collapse: collapse; background: white;">
+            <thead style="background: var(--primary); color: white;">
+              <tr>
+                <th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 0.9rem;">Data</th>
+                <th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 0.9rem;">Horário</th>
+                <th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 0.9rem;">Responsável</th>
+                <th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 0.9rem;">Setor / Turma</th>
+                <th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 0.9rem;">Motivo</th>
+                <th style="padding: 14px 16px; text-align: left; font-weight: 600; font-size: 0.9rem;">Contato</th>
+                <th style="padding: 14px 16px; text-align: right; font-weight: 600; font-size: 0.9rem;">Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${filtered.map(r => `
+                <tr id="row-${r.id}" style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f8fafc'" onmouseout="this.style.backgroundColor='transparent'">
+                  <td style="padding: 16px; font-weight: 700; color: var(--foreground); font-size: 0.95rem;">${formatDatePT(r.date)}</td>
+                  <td style="padding: 16px; font-weight: 700; color: var(--primary); font-size: 0.9rem;">${r.slot}</td>
+                  <td style="padding: 16px;">
+                    <div style="display: flex; flex-direction: column; gap: 2px;">
+                      <span style="font-weight: 700; color: var(--foreground); font-size: 0.95rem;">${escapeHtml(r.name)}</span>
+                      ${r.cargo ? `<span style="font-size: 0.7rem; color: var(--muted-foreground); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">${escapeHtml(r.cargo)}</span>` : ''}
+                    </div>
+                  </td>
+                  <td style="padding: 16px;">
+                    <div style="display: inline-flex; align-items: center; gap: 6px; background: rgba(247, 166, 20, 0.15); padding: 4px 10px; border-radius: 8px; font-size: 0.8rem; font-weight: 700; color: #a16207;">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 14px; height: 14px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                      ${escapeHtml(r.sector)}
+                    </div>
+                  </td>
+                  <td style="padding: 16px;">
+                    <div style="font-size: 0.85rem; color: var(--primary-dark); font-weight: 600; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; max-width: 200px;" title="${escapeHtml(r.reason)}">
+                      ${escapeHtml(r.reason)}
+                    </div>
+                  </td>
+                  <td style="padding: 16px; color: var(--muted-foreground); font-size: 0.85rem;">${escapeHtml(r.contact)}</td>
+                  <td style="padding: 16px; text-align: right;">
+                    <div class="action-buttons" style="justify-content: flex-end;">
+                      <button class="action-btn action-btn-edit" data-edit-id="${r.id}" title="Editar">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                        </svg>
+                      </button>
+                      <button class="action-btn action-btn-delete" data-del-id="${r.id}" title="Excluir">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        </div>
+      `;
+
+      // Mobile Cards
+      const cardsHtml = `
+        <div class="mobile-cards">
+          ${filtered.map(r => `
+            <div class="mobile-card" style="border-left: 4px solid var(--primary); padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: #fff; margin-bottom: 16px; transition: transform 0.2s;">
+              <div class="mobile-card-row" style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <span class="mobile-card-date" style="background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.05em;">${formatDatePT(r.date)}</span>
+                <div style="display: flex; gap: 4px;">
+                  <button class="action-btn action-btn-edit" data-edit-id-mob="${r.id}" style="padding: 6px; background: #f1f5f9; border-radius: 8px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; color: var(--primary);">
+                      <path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>
+                    </svg>
+                  </button>
+                  <button class="action-btn action-btn-delete" data-del-id-mob="${r.id}" style="padding: 6px; background: #fee2e2; border-radius: 8px;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; color: var(--danger);">
+                      <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div style="font-weight: 800; color: var(--primary); font-size: 0.95rem; margin-bottom: 10px;">${r.slot}</div>
+              
+              <div class="mobile-card-who" style="display: flex; flex-direction: column; gap: 2px; margin-bottom: 10px;">
+                <span style="font-weight: 800; font-size: 1.1rem; color: var(--foreground);">${escapeHtml(r.name)}</span>
+                ${r.cargo ? `<span style="font-size: 0.75rem; color: var(--muted-foreground); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em;">${escapeHtml(r.cargo)}</span>` : ''}
+              </div>
+              
+              <div class="mobile-card-sector" style="display: inline-flex; align-items: center; gap: 6px; background: rgba(247, 166, 20, 0.15); padding: 6px 12px; border-radius: 8px; font-size: 0.85rem; font-weight: 700; color: #a16207; margin-bottom: 12px;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width: 14px; height: 14px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                ${escapeHtml(r.sector)}
+              </div>
+              
+              ${r.reason ? `<div class="mobile-card-reason" style="font-size: 0.9rem; color: var(--primary-dark); font-weight: 600; padding: 10px 12px; background: #f0f7ff; border-radius: 8px; border-left: 3px solid var(--primary); margin-bottom: 8px;">
+                ${escapeHtml(r.reason)}
+              </div>` : ''}
+              
+              ${r.contact ? `<div style="font-size: 0.8rem; color: var(--muted-foreground);">📞 ${escapeHtml(r.contact)}</div>` : ''}
+            </div>
+          `).join("")}
+        </div>
+      `;
+
+      tableContainer.innerHTML = tableHtml + cardsHtml;
+
+      // Attach event handlers to dynamic edit/delete actions
+      tableContainer.querySelectorAll("[data-edit-id], [data-edit-id-mob]").forEach(b => {
+        b.addEventListener("click", () => {
+          const id = b.getAttribute("data-edit-id") || b.getAttribute("data-edit-id-mob");
+          const r = getReservations().find(x => x.id === id);
+          if (r) openModal(r);
+        });
+      });
+
+      tableContainer.querySelectorAll("[data-del-id], [data-del-id-mob]").forEach(b => {
+        b.addEventListener("click", () => {
+          const id = b.getAttribute("data-del-id") || b.getAttribute("data-del-id-mob");
+          if (confirm("Deseja realmente cancelar esta reserva de forma permanente?")) {
+            deleteReservation(id);
+          }
+        });
+      });
+    }
+
+    function updateCharts(filtered) {
+      if (!window.Chart) return;
+      
+      const sectorCounts = {};
+      const dayCounts = { "Dom":0, "Seg":0, "Ter":0, "Qua":0, "Qui":0, "Sex":0, "Sáb":0 };
+      
+      filtered.forEach(r => {
+        const sect = r.sector || "Outros";
+        sectorCounts[sect] = (sectorCounts[sect] || 0) + 1;
+        
+        const d = new Date(r.date + "T12:00:00Z");
+        const dow = WEEKDAYS_PT[d.getUTCDay()];
+        dayCounts[dow]++;
+      });
+
+      const ctxSec = document.getElementById('chart-sectores');
+      if (chartSectoresInstance) chartSectoresInstance.destroy();
+      chartSectoresInstance = new Chart(ctxSec, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(sectorCounts),
+          datasets: [{
+            data: Object.values(sectorCounts),
+            backgroundColor: ['#00478f', '#f7a614', '#0f766e', '#b91c1c', '#64748b', '#0369a1'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'right', labels: { boxWidth: 12, font: { size: 11, family: 'Outfit' } } }
+          }
+        }
+      });
+
+      const ctxDias = document.getElementById('chart-dias');
+      if (chartDiasInstance) chartDiasInstance.destroy();
+      chartDiasInstance = new Chart(ctxDias, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(dayCounts),
+          datasets: [{
+            label: 'Reservas',
+            data: Object.values(dayCounts),
+            backgroundColor: '#00478f',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+            x: { grid: { display: false } }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+
+    function exportPDF() {
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("O gerador de PDF ainda está carregando ou não está disponível.");
+        return;
+      }
+      const filtered = getFilteredReservations();
+      if(filtered.length === 0) {
+        alert("Não há reservas filtradas para exportar.");
+        return;
+      }
+
+      const doc = new window.jspdf.jsPDF('landscape');
+      const pageWidth = doc.internal.pageSize.width;
+      
+      // Senac Header
+      doc.setFillColor(0, 71, 143);
+      doc.rect(0, 0, pageWidth, 25, 'F');
+      
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(16);
+      doc.setFont("helvetica", "bold");
+      doc.text("Sistema de Reservas - Senac", 14, 16);
+      
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(12);
+      doc.text("Relatório de Agendamentos", 14, 35);
+      
+      doc.setFontSize(9);
+      doc.setTextColor(100, 100, 100);
+      doc.setFont("helvetica", "normal");
+      doc.text("Gerado em: " + new Date().toLocaleString('pt-BR'), 14, 42);
+
+      const tableData = filtered.map(r => [
+        formatDatePT(r.date),
+        r.slot,
+        r.name + (r.cargo ? ` (${r.cargo})` : ''),
+        r.sector,
+        r.reason,
+        r.contact
+      ]);
+
+      doc.autoTable({
+        startY: 48,
+        head: [["Data", "Horário", "Responsável", "Setor / Turma", "Motivo", "Contato"]],
+        body: tableData,
+        theme: 'striped',
+        headStyles: { fillColor: [0, 71, 143], textColor: [255, 255, 255], fontStyle: 'bold' },
+        styles: { fontSize: 9, cellPadding: 4 },
+        columnStyles: { 4: { cellWidth: 70 } }
+      });
+
+      doc.save(`Relatorio_Reservas_${new Date().getTime()}.pdf`);
+    }
+
+    function exportCSV() {
+      const filtered = getFilteredReservations();
+      
+      const headers = ["Data", "Horário", "Responsável", "Setor/Turma", "Motivo", "Contato", "Observações"];
+      const rows = filtered.map(r => [
+        formatDatePT(r.date),
+        r.slot,
+        r.name,
+        r.sector,
+        r.reason,
+        r.contact,
+        r.notes || ""
+      ]);
+
+      const csvContent = [headers, ...rows]
+        .map(row => row.map(c => `"${String(c).replace(/"/g, '""')}"`).join(","))
+        .join("\n");
+
+      // UTF-8 BOM representation for Excel double-click correctness
+      const blob = new Blob(["\uFEFF" + csvContent], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `reservas-auditorio-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      
+      URL.revokeObjectURL(url);
+    }
+
+    function escapeHtml(s) {
+      return String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+# Firebase
+.firebase/
+active-info.json
+
+# IDE
+.gemini/
+.vscode/
+.idea/
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Temporary utility scripts
+rename.js
+verify.js
+rename_and_verify.py
+rename_and_verify.ps1

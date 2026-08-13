@@ -1,0 +1,11 @@
+{
+  "name": "senac-auditorio",
+  "version": "1.0.0",
+  "description": "Sistema de reservas do auditório SENAC",
+  "scripts": {
+    "dev": "http-server . -p 3000 -o --cors"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
+}

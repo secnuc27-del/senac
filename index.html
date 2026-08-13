@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Reservas — Espaços Senac</title>
+  <meta name="description" content="Selecione um espaço e gerencie os agendamentos de forma simples, rápida e segura." />
+  <meta property="og:title" content="Sistema de Reservas — Espaços Senac" />
+  <meta property="og:description" content="Organize, consulte e gerencie os agendamentos dos espaços do Senac de forma simples, rápida e segura." />
+  <meta property="og:type" content="website" />
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Estilos exclusivos da capa */
+    .cover-page {
+      position: relative;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.15)), url('fundo.png') center/cover no-repeat;
+      overflow: hidden;
+      padding: 40px 20px;
+      text-align: center;
+    }
+
+    /* Formas abstratas discretas no fundo */
+    .cover-shape {
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .cover-shape-1 {
+      width: 500px; height: 500px;
+      top: -150px; left: -150px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .cover-shape-2 {
+      width: 350px; height: 350px;
+      bottom: -100px; right: -100px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .cover-shape-3 {
+      width: 200px; height: 200px;
+      top: 40%; left: 5%;
+      background: rgba(255,255,255,0.02);
+    }
+
+    /* Logo container */
+    .cover-logo {
+      position: relative;
+      width: clamp(280px, 65vw, 400px);
+      height: clamp(168px, 39vw, 240px);
+      margin-bottom: 28px;
+      z-index: 2;
+    }
+    .cover-logo img {
+      position: absolute;
+      top: 0; left: 50%;
+      transform: translateX(-50%);
+      height: 100%;
+      width: auto;
+      object-fit: contain;
+      transition: transform 0.3s ease;
+    }
+    .cover-logo img.logo-base {
+      filter: brightness(0) invert(1);
+      z-index: 1;
+    }
+    .cover-logo img.logo-top {
+      z-index: 2;
+      /* Exibe apenas a asa colorida, corta a escrita "Senac" em azul */
+      clip-path: inset(0 0 48% 0);
+    }
+    .cover-logo:hover img {
+      transform: translateX(-50%) scale(1.04);
+    }
+
+    /* Título */
+    .cover-title {
+      font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+      font-weight: 700;
+      color: #ffffff;
+      max-width: 820px;
+      margin: 0 auto 14px;
+      line-height: 1.2;
+      letter-spacing: -0.01em;
+      z-index: 2;
+    }
+
+    /* Subtítulo */
+    .cover-subtitle {
+      font-size: clamp(0.9rem, 1.8vw, 1.05rem);
+      color: rgba(255,255,255,0.88);
+      max-width: 580px;
+      margin: 0 auto 40px;
+      font-weight: 400;
+      line-height: 1.55;
+      z-index: 2;
+    }
+
+    /* Cartão central branco */
+    .cover-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 36px 40px;
+      max-width: 900px; /* Alargado para acomodar os cards lado a lado */
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(0,30,90,0.25);
+      z-index: 2;
+    }
+
+    /* Botões em Grade Lado a Lado */
+    .cover-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+      margin-bottom: 0;
+      width: 100%;
+    }
+    @media (max-width: 600px) {
+      .cover-buttons { grid-template-columns: 1fr; }
+    }
+    
+    /* Quando há 5 itens, o último pode ocupar a largura total no grid se quisermos, mas o grid resolve sozinho. 
+       Para ficar mais elegante, usaremos 3 colunas em telas muito grandes, mas 2 colunas é ótimo. */
+    @media (min-width: 768px) {
+      .cover-buttons {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    /* Card de espaço (Estilo Quadrado / Compacto) */
+    .space-card {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 20px;
+      border-radius: 14px;
+      border: 2px solid transparent;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: inherit;
+      text-align: left;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .space-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 100%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .space-card:hover::before { opacity: 1; }
+    .space-card:hover { 
+      transform: translateY(-4px); 
+      box-shadow: 0 12px 28px rgba(0,0,0,0.15); 
+    }
+    .space-card:active { transform: scale(0.98); }
+    
+    .space-card-icon {
+      width: 42px; height: 42px;
+      border-radius: 10px;
+      background: rgba(255,255,255,0.35);
+      display: flex; align-items: center; justify-content: center;
+      color: #fff;
+      margin-bottom: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .space-card-icon svg { width: 22px; height: 22px; stroke-width: 2.2; }
+    
+    .space-card-info { flex: 1; width: 100%; }
+    
+    .space-card-name {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    }
+    
+    .space-card-sala {
+      font-size: 0.82rem;
+      color: #ffffff;
+      font-weight: 700;
+      margin-top: 4px;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    }
+    
+    .space-card-arrow {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      color: #fff;
+      opacity: 0.85;
+      transition: opacity 0.2s, transform 0.2s;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+    }
+    .space-card:hover .space-card-arrow {
+      opacity: 1;
+      transform: translateX(4px);
+    }
+    .space-card-arrow svg { width: 22px; height: 22px; stroke-width: 2.5; }
+
+    /* Cores Premium para cada espaço (Mais Escuras para contraste) */
+    .space-card-auditorio {
+      background: linear-gradient(135deg, rgba(0,85,180,0.75), rgba(0,35,80,0.92)), url("fotos do inicio/auditorio.jpg") center/cover;
+    }
+    .space-card-lab {
+      background: linear-gradient(135deg, rgba(5,145,190,0.75), rgba(10,75,100,0.92)), url("fotos do inicio/lab de informatica.jpg") center/cover;
+    }
+    .space-card-hardware {
+      background: linear-gradient(135deg, rgba(120,45,230,0.75), rgba(55,20,110,0.92)), url("fotos do inicio/lab  de hadware.jpg") center/cover;
+    }
+    .space-card-saude {
+      background: linear-gradient(135deg, rgba(12,140,130,0.75), rgba(10,75,70,0.92)), url("fotos do inicio/lab de saude.png") center/cover;
+    }
+    .space-card-todas {
+      background: linear-gradient(135deg, rgba(71,85,105,0.8), rgba(30,41,59,0.95));
+    } /* Neutro Elegante */
+
+    .cover-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      padding: 15px 20px;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 2px solid transparent;
+      font-family: inherit;
+    }
+    .cover-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+    .cover-btn:hover { transform: translateY(-2px); }
+    .cover-btn:active { transform: translateY(0); }
+
+    .cover-btn-primary {
+      background: #f7a614;
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(247,166,20,0.4);
+    }
+    .cover-btn-primary:hover { background: #e09610; }
+
+    .cover-btn-secondary {
+      background: #ffffff;
+      color: #00478f;
+      border: 2px solid #00478f;
+    }
+    .cover-btn-secondary:hover { background: #eef4ff; }
+
+    /* Blocos informativos */
+    .cover-info {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 400px) {
+      .cover-info { grid-template-columns: 1fr; }
+    }
+
+    .cover-info-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      text-align: left;
+    }
+
+    .cover-info-icon {
+      width: 46px; height: 46px;
+      border-radius: 50%;
+      border: 2px solid #00478f;
+      background: rgba(0,71,143,0.05);
+      display: flex; align-items: center; justify-content: center;
+      color: #00478f;
+      flex-shrink: 0;
+    }
+    .cover-info-icon svg { width: 22px; height: 22px; }
+
+    .cover-info-title {
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: #00478f;
+      margin-bottom: 3px;
+    }
+    .cover-info-desc {
+      font-size: 0.78rem;
+      color: #5b6a8a;
+      font-weight: 500;
+    }
+
+    /* Rodapé */
+    .cover-footer {
+      margin-top: 36px;
+      font-size: 0.8rem;
+      color: rgba(255,255,255,0.65);
+      z-index: 2;
+    }
+
+    /* ===== ANIMAÇÕES AO APERTAR OS BOTÕES (ABERTURA DA TELA) ===== */
+    .cover-btn {
+      transition: transform 0.1s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .cover-btn:active {
+      transform: scale(0.96) !important;
+    }
+
+    /* Animações de saída (Os elementos se separam abrindo o centro da tela) */
+    .cover-page.leaving .cover-logo {
+      animation: fadeOutUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .cover-page.leaving .cover-title,
+    .cover-page.leaving .cover-subtitle {
+      animation: fadeOutUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .cover-page.leaving .cover-card {
+      animation: fadeOutDown 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .cover-page.leaving .cover-footer {
+      animation: fadeOutDown 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+
+    @keyframes fadeOutUp {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-280px); }
+    }
+    @keyframes fadeOutDown {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(360px); }
+    }
+
+    /* ===== ANIMAÇÕES DE ENTRADA (AO CARREGAR A PÁGINA) ===== */
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-60px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(60px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .cover-logo {
+      animation: fadeInDown 1.0s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.1s;
+    }
+    .cover-title {
+      animation: fadeInDown 1.0s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.2s;
+    }
+    .cover-subtitle {
+      animation: fadeInDown 1.0s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.3s;
+    }
+    .cover-card {
+      animation: fadeInUp 1.0s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.4s;
+    }
+    .cover-footer {
+      animation: fadeInUp 1.0s cubic-bezier(0.16, 1, 0.3, 1) both;
+      animation-delay: 0.5s;
+    }
+
+    @media (max-width: 480px) {
+      .cover-page {
+        padding: 24px 14px;
+      }
+      .cover-logo {
+        margin-bottom: 16px;
+      }
+      .cover-card {
+        padding: 24px 18px;
+        border-radius: 12px;
+      }
+      .cover-title {
+        font-size: 1.4rem;
+        margin-bottom: 10px;
+      }
+      .cover-subtitle {
+        margin-bottom: 24px;
+        font-size: 0.85rem;
+      }
+      .cover-btn {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+      }
+      .cover-info {
+        gap: 12px;
+      }
+      .cover-info-item {
+        gap: 10px;
+      }
+      .cover-info-icon {
+        width: 38px;
+        height: 38px;
+      }
+      .cover-info-icon svg {
+        width: 18px;
+        height: 18px;
+      }
+      .cover-info-title {
+        font-size: 0.85rem;
+      }
+      .cover-info-desc {
+        font-size: 0.72rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="cover-page">
+
+    <!-- Formas de fundo abstratas -->
+    <div class="cover-shape cover-shape-1"></div>
+    <div class="cover-shape cover-shape-2"></div>
+    <div class="cover-shape cover-shape-3"></div>
+
+    <!-- Logo Senac -->
+    <div class="cover-logo">
+      <img class="logo-base" src="logo-clean.png" alt="Senac">
+      <img class="logo-top"  src="logo-clean.png" alt="">
+    </div>
+
+    <!-- Título e subtítulo -->
+    <h1 class="cover-title" id="main-heading">
+      Reservas de Espaços Senac
+    </h1>
+    <p class="cover-subtitle">
+      Selecione o espaço desejado para consultar a agenda e realizar sua reserva.
+    </p>
+
+    <!-- Cartão central branco -->
+    <div class="cover-card">
+
+      <div style="font-size:0.8rem;font-weight:900;text-transform:uppercase;letter-spacing:0.08em;color:#00478f;margin-bottom:16px;">Selecione o espaço</div>
+      <div class="cover-buttons" id="spaces-list">
+        <!-- Gerado dinamicamente pelo JS -->
+      </div>
+
+    </div><!-- /cover-card -->
+
+    <!-- Rodapé -->
+    <p class="cover-footer">
+      © <span id="current-year">2026</span> Senac - Sistema interno
+    </p>
+
+  </main>
+
+  <script src="reservations.js"></script>
+  <script>
+    document.getElementById("current-year").textContent = new Date().getFullYear();
+
+    // Mapa de estilos de cores por tipo de espaço
+    const espacoEstilo = {
+      auditorio:  "space-card-auditorio",
+      lab105:     "space-card-lab",
+      lab106:     "space-card-lab",
+      hardware107:"space-card-hardware",
+      lab112:     "space-card-saude"
+    };
+
+    // Renderiza os cards de espaços
+    const spacesList = document.getElementById("spaces-list");
+    ESPACOS.forEach(espaco => {
+      const card = document.createElement("a");
+      card.href = `calendario.html?espaco=${espaco.id}`;
+      card.className = `space-card cover-btn ${espacoEstilo[espaco.id] || 'space-card-auditorio'}`;
+      card.id = `btn-espaco-${espaco.id}`;
+      card.innerHTML = `
+        <div class="space-card-icon">${espaco.icone}</div>
+        <div class="space-card-info">
+          <div class="space-card-name">${espaco.nome}</div>
+          <div class="space-card-sala">${espaco.sala || espaco.descricao}</div>
+        </div>
+        <div class="space-card-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        </div>
+      `;
+      spacesList.appendChild(card);
+    });
+    
+    // Adiciona o card de "Ver todas as reservas" no grid
+    const allResCard = document.createElement("a");
+    allResCard.href = "reservas.html";
+    allResCard.className = "space-card cover-btn space-card-todas";
+    allResCard.id = "btn-view-all";
+    allResCard.innerHTML = `
+      <div class="space-card-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m3 17 2 2 4-4M3 7l2 2 4-4M13 6h8M13 12h8M13 18h8m-10-6 2 2 4-4"/>
+        </svg>
+      </div>
+      <div class="space-card-info">
+        <div class="space-card-name">Todas as Reservas</div>
+        <div class="space-card-sala">Painel Geral</div>
+      </div>
+      <div class="space-card-arrow">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </div>
+    `;
+    spacesList.appendChild(allResCard);
+
+    // Animação de "Abertura de Tela" ao clicar nos botões
+    document.querySelectorAll('.cover-btn, .cover-all-link').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const targetHref = this.getAttribute('href');
+
+        const coverPage = document.querySelector('.cover-page');
+        coverPage.classList.add('leaving');
+
+        setTimeout(() => {
+          window.location.href = targetHref;
+        }, 850);
+      });
+    });
+  </script>
+</body>
+</html>
