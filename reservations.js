@@ -119,6 +119,7 @@ async function initFirebase() {
 
     console.log("[Senac] Firebase inicializado ✓");
     setupFirebaseRealtimeSync();
+    setupGlobalSiteLock();
     return true;
   } catch (err) {
     console.warn("[Senac] Falha ao inicializar Firebase — modo offline ativo.", err);
@@ -164,6 +165,50 @@ function setupFirebaseRealtimeSync() {
     });
 }
 
+function setupGlobalSiteLock() {
+  if (!_firestoreDb) return;
+  
+  _firestoreDb.collection("settings").doc("system")
+    .onSnapshot((doc) => {
+      if (doc.exists) {
+        const data = doc.data();
+        const overlay = document.getElementById("global-lock-overlay");
+        const msgElem = document.getElementById("global-lock-message");
+        
+        // If locked and not on admin page (admin page handles it in its own way or keeps it unlocked for admins)
+        const isAdminPage = window.location.pathname.endsWith("admin.html");
+        
+        if (data.locked && !isAdminPage) {
+          if (!overlay) {
+            // Create overlay dynamically if it doesn't exist
+            const div = document.createElement("div");
+            div.id = "global-lock-overlay";
+            div.style.cssText = "position: fixed; inset: 0; background: rgba(0,25,51,0.95); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; color: white;";
+            div.innerHTML = `
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 80px; height: 80px; color: #ef4444; margin-bottom: 24px;">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+              </svg>
+              <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 16px;">Sistema Temporariamente Indisponível</h1>
+              <p id="global-lock-message" style="font-size: 1.25rem; color: #cbd5e1; max-width: 600px; line-height: 1.6;">${data.reason || "O sistema foi bloqueado pela administração."}</p>
+            `;
+            document.body.appendChild(div);
+          } else {
+            overlay.style.display = "flex";
+            overlay.style.opacity = "1";
+            overlay.style.pointerEvents = "all";
+            if (msgElem) msgElem.textContent = data.reason || "O sistema foi bloqueado pela administração.";
+          }
+        } else if (!data.locked && overlay) {
+          overlay.style.display = "none";
+          overlay.style.opacity = "0";
+          overlay.style.pointerEvents = "none";
+        }
+      }
+    }, (err) => {
+      console.warn("[Senac] Erro ao escutar trava global:", err);
+    });
+}
+
 // ─── INTERNOS DO LOCALSTORAGE ───────────────────────────────
 function getStorageKey(espacoId) {
   return `senac_reservas_${espacoId || getEspacoAtivo().id}_v1`;
@@ -196,6 +241,27 @@ function _saveLocalReservations(list, espacoId) {
 }
 
 // ─── API PÚBLICA ─────────────────────────────────────────────
+
+function getReservations() {
+  return _getLocalReservations();
+}
+
+// ─── CÓDIGOS DE FERIADO ─────────────────────────────────────
+async function validateHolidayCode(dateStr, code) {
+  if (!_firebaseReady || !_firestoreDb) return false;
+  try {
+    const doc = await _firestoreDb.collection("holiday_codes").doc(dateStr).get();
+    if (doc.exists) {
+      const data = doc.data();
+      if (data.code === code) return true;
+    }
+  } catch(e) {
+    console.error("Erro ao validar código de feriado:", e);
+  }
+  return false;
+}
+
+// ─── MÉTODOS DE ESCRITA ─────────────────────────────────────────────
 
 const MONTHS_PT = [
   "Janeiro", "Fevereiro", "Março", "Abril", "Maio", "Junho",

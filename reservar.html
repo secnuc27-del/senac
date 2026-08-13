@@ -264,6 +264,8 @@
 
     const date = getQueryParam("data");
     const slot = getQueryParam("slot");
+    const isHolidayParam = getQueryParam("isHoliday");
+    const holidayNameParam = getQueryParam("holidayName");
 
     // Só redireciona se não tiver data na URL
     if (!date) {
@@ -355,7 +357,7 @@
 
       const chosenSlot = `${startVal} às ${endVal}`;
 
-      const res = addReservation({
+      const resObj = {
         date,
         slot: chosenSlot.slice(0, 120),
         cargo: cargo.slice(0, 50),
@@ -364,7 +366,14 @@
         reason: reason.slice(0, 500),
         contact: "-",
         notes: notes.slice(0, 500)
-      }, espaco.id);
+      };
+
+      if (isHolidayParam === "true") {
+        resObj.isHoliday = true;
+        resObj.holidayName = holidayNameParam || "Feriado Especial";
+      }
+
+      const res = addReservation(resObj, espaco.id);
 
       if (!res.ok) {
         errMessage.textContent = res.error;

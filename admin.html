@@ -50,14 +50,6 @@
         </div>
       </a>
       <nav>
-        <a href="index.html" class="nav-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          <span class="nav-text">Início</span>
-        </a>
-        <a href="calendario.html" class="nav-link">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 2v4"/><path d="M16 2v4"/></svg>
-          <span class="nav-text">Calendário</span>
-        </a>
         <a href="reservas.html" class="nav-link">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/><path d="m3 12 2 2 4-4"/></svg>
           <span class="nav-text">Reservas</span>
@@ -129,22 +121,54 @@
           <p class="page-subtitle">Gerencie todas as reservas do auditório.</p>
         </div>
         <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <button id="btn-new-reservation" class="btn btn-primary btn-sm">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
-            Nova reserva
-          </button>
-          <button id="btn-export-csv" class="btn btn-secondary btn-sm">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
-            Exportar CSV
-          </button>
-          <button id="btn-export-pdf" class="btn btn-secondary btn-sm" style="background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); color: var(--danger);">
+          <button id="btn-export-word" class="btn btn-secondary btn-sm" style="background: rgba(0, 71, 143, 0.08); border-color: rgba(0, 71, 143, 0.2); color: var(--primary);">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M16 13H8"/><path d="M16 17H8"/><path d="M10 9H8"/></svg>
-            Relatório PDF
+            Exportar para Word
           </button>
           <button id="btn-logout" class="btn btn-sm" style="background: rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.1); color: var(--foreground);">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" x2="9" y1="12" y2="12"/></svg>
             Sair
           </button>
+        </div>
+      </div>
+      </div>
+
+      <!-- Segurança do Sistema (Global Site Lock) -->
+      <div style="background: rgba(239, 68, 68, 0.05); border: 1px solid rgba(239, 68, 68, 0.2); padding: 20px; border-radius: 12px; margin-bottom: 24px;">
+        <h3 style="display: flex; align-items: center; gap: 8px; color: var(--danger); margin-bottom: 12px; font-size: 1.1rem; font-weight: 800;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          Segurança: Bloqueio Total do Site
+        </h3>
+        <p style="font-size: 0.9rem; color: var(--muted-foreground); margin-bottom: 16px;">
+          Use esta trava para fechar o sistema inteiro para todos os usuários (exceto administradores). Ideal para manutenções ou emergências de segurança.
+        </p>
+        <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+          <button id="btn-toggle-lock" class="btn btn-secondary" style="border-color: var(--danger); color: var(--danger);">
+            Bloquear Sistema
+          </button>
+          <input type="text" id="lock-reason" class="form-input" style="flex: 1; min-width: 200px; margin: 0;" placeholder="Motivo do bloqueio (ex: Manutenção programada)..." />
+        </div>
+      </div>
+
+      <!-- Feriados / Códigos -->
+      <div style="background: rgba(15, 118, 110, 0.05); border: 1px solid rgba(15, 118, 110, 0.2); border-radius: 12px; padding: 20px; margin-bottom: 30px;">
+        <div style="display: flex; align-items: center; gap: 8px; color: #0f766e; margin-bottom: 12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="width: 20px; height: 20px;">
+            <path d="M12 2v20"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          </svg>
+          <h2 style="font-size: 1.1rem; font-weight: 800; margin: 0;">Autorização para Feriados</h2>
+        </div>
+        <p style="font-size: 0.9rem; color: var(--muted-foreground); margin-bottom: 16px;">Gere um código para permitir reservas em um feriado específico.</p>
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+          <input type="date" id="holiday-code-date" class="form-input" style="width: auto; margin: 0;" />
+          <button id="btn-generate-code" class="btn" style="background: #0f766e; color: white; padding: 10px 16px; margin: 0;">
+            Gerar Código
+          </button>
+          <div id="holiday-code-result" style="display: none; align-items: center; gap: 8px; font-weight: 800; font-size: 1.1rem; color: #0f766e; background: white; padding: 8px 16px; border-radius: 8px; border: 1px dashed #0f766e;">
+            <!-- Código aparece aqui -->
+          </div>
         </div>
       </div>
 
@@ -193,6 +217,57 @@
       </div>
     </div>
   </main>
+
+  <!-- Global Lock Overlay (Hidden by default) -->
+  <div id="global-lock-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,25,51,0.95); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 24px; text-align: center; color: white; opacity: 0; pointer-events: none; transition: opacity 0.3s;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width: 80px; height: 80px; color: var(--danger); margin-bottom: 24px;">
+      <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+    </svg>
+    <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 16px;">Sistema Temporariamente Indisponível</h1>
+    <p id="global-lock-message" style="font-size: 1.25rem; color: #cbd5e1; max-width: 600px; line-height: 1.6;">O sistema foi bloqueado pela administração.</p>
+  </div>
+
+  <!-- Modal Editar Reserva -->
+  <div class="modal-overlay" id="modal-edit-reservation">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Editar Reserva</h2>
+        <button class="modal-close" onclick="closeEditModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+      <form id="edit-reservation-form">
+        <input type="hidden" id="edit-id" />
+        <input type="hidden" id="edit-espaco" />
+        <div class="form-field">
+          <label for="edit-date">Data</label>
+          <input type="date" id="edit-date" class="form-input" required />
+        </div>
+        <div class="form-field">
+          <label for="edit-slot">Horário</label>
+          <select id="edit-slot" class="form-input" required>
+            <!-- Preenchido via JS baseado no espaço -->
+          </select>
+        </div>
+        <div class="form-field">
+          <label for="edit-responsavel">Responsável</label>
+          <input type="text" id="edit-responsavel" class="form-input" required />
+        </div>
+        <div class="form-field">
+          <label for="edit-setor">Setor/Turma</label>
+          <input type="text" id="edit-setor" class="form-input" required />
+        </div>
+        <div class="form-field">
+          <label for="edit-motivo">Motivo</label>
+          <input type="text" id="edit-motivo" class="form-input" required />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeEditModal()">Cancelar</button>
+          <button type="submit" class="btn btn-primary">Salvar Alterações</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <!-- Modal for Creating/Editing Reservation -->
   <div class="modal-backdrop" id="reservation-modal">
@@ -398,111 +473,79 @@
         MONTHS_PT.map((m, i) => `<option value="${pad(i + 1)}">${m}</option>`).join("");
 
       // Event listeners for dashboard controls
-      document.getElementById("btn-new-reservation").addEventListener("click", () => openModal());
-      document.getElementById("btn-export-csv").addEventListener("click", exportCSV);
-      document.getElementById("btn-export-pdf").addEventListener("click", exportPDF);
-      document.getElementById("modal-close-btn").addEventListener("click", closeModal);
-      document.getElementById("modal-cancel-btn").addEventListener("click", closeModal);
+      document.getElementById("btn-export-word").addEventListener("click", exportWord);
+      document.getElementById("btn-toggle-lock").addEventListener("click", toggleSiteLock);
+      document.getElementById("btn-generate-code").addEventListener("click", generateHolidayCode);
       
       searchFilter.addEventListener("input", renderDashboardData);
       monthFilter.addEventListener("change", renderDashboardData);
       sectorFilter.addEventListener("input", renderDashboardData);
       
-      modalForm.addEventListener("submit", handleModalSubmit);
+      document.getElementById("edit-reservation-form").addEventListener("submit", handleEditSubmit);
       window.addEventListener("reservations-changed", renderDashboardData);
+
+      // Load initial lock state from Firestore if available
+      if (window._firebaseReady && window._firestoreDb) {
+        window._firestoreDb.collection("settings").doc("system").get().then(doc => {
+          if (doc.exists) {
+            const data = doc.data();
+            updateLockUI(data.locked, data.reason);
+          }
+        });
+      }
 
       renderDashboardData();
     }
 
-    function openModal(r = null) {
-      editingId = r ? r.id : null;
-      modalTitle.textContent = r ? "Editar reserva" : "Nova reserva (manual)";
-      modalError.style.display = "none";
+    function openEditModal(id, espacoId) {
+      const res = getAllReservations().find(r => r.id === id);
+      if (!res) return;
+
+      document.getElementById("edit-id").value = res.id;
+      document.getElementById("edit-espaco").value = res.espaco;
+      document.getElementById("edit-date").value = res.date;
       
-      modalForm.reset();
-
-      if (r) {
-        document.getElementById("modal-date").value = r.date;
-        if (r.slot && r.slot.includes(' às ')) {
-          const parts = r.slot.split(' às ');
-          document.getElementById("modal-time-start").value = parts[0];
-          document.getElementById("modal-time-end").value = parts[1];
-        } else {
-          document.getElementById("modal-time-start").value = "";
-          document.getElementById("modal-time-end").value = "";
-        }
-        document.getElementById("modal-name").value = r.name;
-        document.getElementById("modal-sector").value = r.sector;
-        document.getElementById("modal-reason").value = r.reason;
-        document.getElementById("modal-contact").value = r.contact;
-        document.getElementById("modal-notes").value = r.notes || "";
-      } else {
-        document.getElementById("modal-date").value = new Date().toISOString().slice(0, 10);
-        document.getElementById("modal-time-start").value = "08:00";
-        document.getElementById("modal-time-end").value = "10:00";
+      const slotSelect = document.getElementById("edit-slot");
+      slotSelect.innerHTML = window.TIME_SLOTS.map(s => `<option value="${s}">${s}</option>`).join("");
+      
+      // Se não for um slot padrão, adiciona como option para não quebrar a edição
+      if (!window.TIME_SLOTS.includes(res.slot)) {
+         slotSelect.innerHTML += `<option value="${res.slot}">${res.slot}</option>`;
       }
-
-      modal.classList.add("show");
+      slotSelect.value = res.slot;
+      
+      document.getElementById("edit-responsavel").value = res.name;
+      document.getElementById("edit-setor").value = res.sector;
+      document.getElementById("edit-motivo").value = res.reason;
+      
+      document.getElementById("modal-edit-reservation").classList.add("show");
     }
 
-    function closeModal() {
-      modal.classList.remove("show");
-      editingId = null;
+    function closeEditModal() {
+      document.getElementById("modal-edit-reservation").classList.remove("show");
     }
 
-    function handleModalSubmit(e) {
+    function handleEditSubmit(e) {
       e.preventDefault();
-      modalError.style.display = "none";
-
-      const dateVal = document.getElementById("modal-date").value;
-      const tStart = document.getElementById("modal-time-start").value;
-      const tEnd = document.getElementById("modal-time-end").value;
-      const slotVal = (tStart && tEnd) ? `${tStart} às ${tEnd}` : "";
-      const nameVal = document.getElementById("modal-name").value.trim();
-      const sectorVal = document.getElementById("modal-sector").value.trim();
-      const reasonVal = document.getElementById("modal-reason").value.trim();
-      const contactVal = document.getElementById("modal-contact").value.trim();
-      const notesVal = document.getElementById("modal-notes").value.trim();
-
-      if (!dateVal || !tStart || !tEnd || !nameVal || !sectorVal || !reasonVal || !contactVal) {
-        modalErrorMessage.textContent = "Preencha todos os campos obrigatórios.";
-        modalError.style.display = "flex";
-        return;
-      }
+      const id = document.getElementById("edit-id").value;
+      const espacoId = document.getElementById("edit-espaco").value;
       
-      if (tStart >= tEnd) {
-        modalErrorMessage.textContent = "A hora de término deve ser maior que a hora de início.";
-        modalError.style.display = "flex";
-        return;
-      }
-
-      const data = {
-        date: dateVal,
-        slot: slotVal,
-        name: nameVal.slice(0, 120),
-        sector: sectorVal.slice(0, 120),
-        reason: reasonVal.slice(0, 500),
-        contact: contactVal.slice(0, 60),
-        notes: notesVal.slice(0, 500)
+      const patch = {
+        date: document.getElementById("edit-date").value,
+        slot: document.getElementById("edit-slot").value,
+        name: document.getElementById("edit-responsavel").value,
+        sector: document.getElementById("edit-setor").value,
+        reason: document.getElementById("edit-motivo").value
       };
 
-      if (editingId) {
-        const updateRes = updateReservation(editingId, data);
-        if (updateRes && !updateRes.ok) {
-          modalErrorMessage.textContent = updateRes.error;
-          modalError.style.display = "flex";
-          return;
-        }
-      } else {
-        const createRes = addReservation(data);
-        if (!createRes.ok) {
-          modalErrorMessage.textContent = createRes.error;
-          modalError.style.display = "flex";
-          return;
-        }
+      const res = updateReservation(id, patch, espacoId);
+      if (res && !res.ok) {
+        alert("Erro ao atualizar: " + res.error);
+        return;
       }
-
-      closeModal();
+      
+      closeEditModal();
+      renderDashboardData();
     }
 
     let currentAdminTab = 'ativas'; // 'ativas' ou 'historico'
@@ -522,7 +565,7 @@
       const now = new Date();
       const todayStr = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0') + '-' + String(now.getDate()).padStart(2,'0');
 
-      return getReservations()
+      return getAllReservations()
         .filter(r => {
           if (currentAdminTab === 'ativas' && r.date < todayStr) return false;
           if (currentAdminTab === 'historico' && r.date >= todayStr) return false;
@@ -590,8 +633,11 @@
             </thead>
             <tbody>
               ${filtered.map(r => `
-                <tr id="row-${r.id}" style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s;" onmouseover="this.style.backgroundColor='#f8fafc'" onmouseout="this.style.backgroundColor='transparent'">
-                  <td style="padding: 16px; font-weight: 700; color: var(--foreground); font-size: 0.95rem;">${formatDatePT(r.date)}</td>
+                <tr id="row-${r.id}" style="border-bottom: 1px solid #f1f5f9; transition: background 0.2s; ${r.isHoliday ? 'background: rgba(219, 39, 119, 0.05); border-left: 4px solid #db2777;' : ''}" onmouseover="this.style.backgroundColor='${r.isHoliday ? 'rgba(219, 39, 119, 0.08)' : '#f8fafc'}'" onmouseout="this.style.backgroundColor='${r.isHoliday ? 'rgba(219, 39, 119, 0.05)' : 'transparent'}'">
+                  <td style="padding: 16px; font-weight: 700; color: var(--foreground); font-size: 0.95rem;">
+                    ${formatDatePT(r.date)}
+                    ${r.isHoliday ? `<div style="font-size: 0.7rem; color: #db2777; margin-top: 4px; font-weight: 800; text-transform: uppercase;">${escapeHtml(r.holidayName || 'FERIADO')}</div>` : ''}
+                  </td>
                   <td style="padding: 16px; font-weight: 700; color: var(--primary); font-size: 0.9rem;">${r.slot}</td>
                   <td style="padding: 16px;">
                     <div style="display: flex; flex-direction: column; gap: 2px;">
@@ -636,9 +682,11 @@
       const cardsHtml = `
         <div class="mobile-cards">
           ${filtered.map(r => `
-            <div class="mobile-card" style="border-left: 4px solid var(--primary); padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: #fff; margin-bottom: 16px; transition: transform 0.2s;">
+            <div class="mobile-card" style="border-left: 4px solid ${r.isHoliday ? '#db2777' : 'var(--primary)'}; padding: 16px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); background: ${r.isHoliday ? 'rgba(219, 39, 119, 0.03)' : '#fff'}; margin-bottom: 16px; transition: transform 0.2s;">
               <div class="mobile-card-row" style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
-                <span class="mobile-card-date" style="background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.05em;">${formatDatePT(r.date)}</span>
+                <span class="mobile-card-date" style="background: ${r.isHoliday ? '#db2777' : 'var(--primary)'}; color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.05em;">
+                  ${formatDatePT(r.date)} ${r.isHoliday ? ` • ${escapeHtml(r.holidayName || 'Feriado')}` : ''}
+                </span>
                 <div style="display: flex; gap: 4px;">
                   <button class="action-btn action-btn-edit" data-edit-id-mob="${r.id}" style="padding: 6px; background: #f1f5f9; border-radius: 8px;">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; color: var(--primary);">
@@ -681,8 +729,8 @@
       tableContainer.querySelectorAll("[data-edit-id], [data-edit-id-mob]").forEach(b => {
         b.addEventListener("click", () => {
           const id = b.getAttribute("data-edit-id") || b.getAttribute("data-edit-id-mob");
-          const r = getReservations().find(x => x.id === id);
-          if (r) openModal(r);
+          const r = getAllReservations().find(x => x.id === id);
+          if (r) openEditModal(r.id, r.espaco);
         });
       });
 
@@ -690,7 +738,10 @@
         b.addEventListener("click", () => {
           const id = b.getAttribute("data-del-id") || b.getAttribute("data-del-id-mob");
           if (confirm("Deseja realmente cancelar esta reserva de forma permanente?")) {
-            deleteReservation(id);
+            const r = getAllReservations().find(x => x.id === id);
+            if (r) {
+              deleteReservation(id, r.espaco);
+            }
           }
         });
       });
@@ -759,58 +810,143 @@
       });
     }
 
-    function exportPDF() {
-      if (!window.jspdf || !window.jspdf.jsPDF) {
-        alert("O gerador de PDF ainda está carregando ou não está disponível.");
-        return;
-      }
+    function exportWord() {
       const filtered = getFilteredReservations();
       if(filtered.length === 0) {
         alert("Não há reservas filtradas para exportar.");
         return;
       }
+      
+      let tableRows = filtered.map(r => `
+        <tr>
+          <td style="border: 1px solid #000; padding: 5px;">${formatDatePT(r.date)}</td>
+          <td style="border: 1px solid #000; padding: 5px;">${r.slot}</td>
+          <td style="border: 1px solid #000; padding: 5px;">${escapeHtml(r.name)}</td>
+          <td style="border: 1px solid #000; padding: 5px;">${escapeHtml(r.sector)}</td>
+          <td style="border: 1px solid #000; padding: 5px;">${escapeHtml(r.reason)}</td>
+        </tr>
+      `).join("");
 
-      const doc = new window.jspdf.jsPDF('landscape');
-      const pageWidth = doc.internal.pageSize.width;
+      const htmlContent = `
+        <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+        <head><meta charset='utf-8'><title>Reservas Senac</title></head>
+        <body style="font-family: Arial, sans-serif;">
+          <h1 style="color: #00478f;">Sistema de Reservas - Senac</h1>
+          <h2>Relatório de Agendamentos</h2>
+          <p>Gerado em: ${new Date().toLocaleDateString('pt-BR')}</p>
+          <table style="width: 100%; border-collapse: collapse; border: 1px solid #000;">
+            <thead style="background-color: #00478f; color: white;">
+              <tr>
+                <th style="border: 1px solid #000; padding: 5px;">Data</th>
+                <th style="border: 1px solid #000; padding: 5px;">Horário</th>
+                <th style="border: 1px solid #000; padding: 5px;">Responsável</th>
+                <th style="border: 1px solid #000; padding: 5px;">Setor / Turma</th>
+                <th style="border: 1px solid #000; padding: 5px;">Motivo</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+            </tbody>
+          </table>
+        </body>
+        </html>
+      `;
       
-      // Senac Header
-      doc.setFillColor(0, 71, 143);
-      doc.rect(0, 0, pageWidth, 25, 'F');
+      const blob = new Blob(['\ufeff', htmlContent], { type: 'application/msword' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Reservas_Senac_${new Date().getTime()}.doc`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+    
+    // ==========================================
+    // GLOBAL SITE LOCK LOGIC
+    // ==========================================
+    let isSiteLocked = false;
+    
+    function updateLockUI(locked, reason) {
+      isSiteLocked = locked;
+      const btn = document.getElementById("btn-toggle-lock");
+      const input = document.getElementById("lock-reason");
       
-      doc.setTextColor(255, 255, 255);
-      doc.setFontSize(16);
-      doc.setFont("helvetica", "bold");
-      doc.text("Sistema de Reservas - Senac", 14, 16);
+      if (locked) {
+        btn.textContent = "Destravar Sistema";
+        btn.style.background = "var(--danger)";
+        btn.style.color = "white";
+        input.value = reason || "";
+      } else {
+        btn.textContent = "Bloquear Sistema";
+        btn.style.background = "transparent";
+        btn.style.color = "var(--danger)";
+      }
+    }
+    
+    function toggleSiteLock() {
+      if (!window._firebaseReady || !window._firestoreDb) {
+        alert("Firebase não configurado. Não é possível travar o sistema na nuvem.");
+        return;
+      }
       
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(12);
-      doc.text("Relatório de Agendamentos", 14, 35);
+      const newLockedState = !isSiteLocked;
+      const reason = document.getElementById("lock-reason").value.trim() || "Manutenção programada. Tente novamente mais tarde.";
       
-      doc.setFontSize(9);
-      doc.setTextColor(100, 100, 100);
-      doc.setFont("helvetica", "normal");
-      doc.text("Gerado em: " + new Date().toLocaleString('pt-BR'), 14, 42);
-
-      const tableData = filtered.map(r => [
-        formatDatePT(r.date),
-        r.slot,
-        r.name + (r.cargo ? ` (${r.cargo})` : ''),
-        r.sector,
-        r.reason,
-        r.contact
-      ]);
-
-      doc.autoTable({
-        startY: 48,
-        head: [["Data", "Horário", "Responsável", "Setor / Turma", "Motivo", "Contato"]],
-        body: tableData,
-        theme: 'striped',
-        headStyles: { fillColor: [0, 71, 143], textColor: [255, 255, 255], fontStyle: 'bold' },
-        styles: { fontSize: 9, cellPadding: 4 },
-        columnStyles: { 4: { cellWidth: 70 } }
+      if (newLockedState) {
+        if (!confirm("Tem certeza que deseja BLOQUEAR o site inteiro? Ninguém poderá acessar as reservas.")) return;
+      } else {
+        if (!confirm("Deseja destravar o site e liberar os acessos?")) return;
+      }
+      
+      window._firestoreDb.collection("settings").doc("system").set({
+        locked: newLockedState,
+        reason: newLockedState ? reason : "",
+        updatedAt: new Date().toISOString()
+      }, { merge: true }).then(() => {
+        updateLockUI(newLockedState, reason);
+        alert(newLockedState ? "Site Bloqueado com sucesso!" : "Site Destravado!");
+      }).catch(err => {
+        alert("Erro ao alterar trava de segurança.");
+        console.error(err);
       });
+    }
 
-      doc.save(`Relatorio_Reservas_${new Date().getTime()}.pdf`);
+    // ==========================================
+    // HOLIDAY CODE GENERATOR
+    // ==========================================
+    function generateHolidayCode() {
+      if (!window._firebaseReady || !window._firestoreDb) {
+        alert("Firebase não configurado. Não é possível gerar código na nuvem.");
+        return;
+      }
+      
+      const dateInput = document.getElementById("holiday-code-date").value;
+      if (!dateInput) {
+        alert("Por favor, selecione a data do feriado.");
+        return;
+      }
+
+      // Generate a random 6-character alphanumeric code
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let code = "FER-";
+      for (let i = 0; i < 4; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+
+      // Save to Firestore
+      window._firestoreDb.collection("holiday_codes").doc(dateInput).set({
+        code: code,
+        createdAt: new Date().toISOString()
+      }).then(() => {
+        const resultDiv = document.getElementById("holiday-code-result");
+        resultDiv.style.display = "flex";
+        resultDiv.innerHTML = `<span>Código para ${formatDatePT(dateInput)}:</span> <span style="font-size:1.3rem; letter-spacing: 2px;">${code}</span>`;
+      }).catch(err => {
+        alert("Erro ao gerar código.");
+        console.error(err);
+      });
     }
 
     function exportCSV() {
