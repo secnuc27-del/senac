@@ -116,10 +116,14 @@ async function initFirebase() {
     _firestoreDb  = firebase.firestore();
     _firebaseAuth = firebase.auth();
     _firebaseReady = true;
+    // Expose on window so admin.html can access them
+    window._firestoreDb   = _firestoreDb;
+    window._firebaseReady = true;
 
     console.log("[Senac] Firebase inicializado ✓");
     setupFirebaseRealtimeSync();
     setupGlobalSiteLock();
+    logDeviceVisit();
     return true;
   } catch (err) {
     console.warn("[Senac] Falha ao inicializar Firebase — modo offline ativo.", err);
@@ -207,6 +211,61 @@ function setupGlobalSiteLock() {
     }, (err) => {
       console.warn("[Senac] Erro ao escutar trava global:", err);
     });
+}
+
+// ─── REGISTRO DE DISPOSITIVOS ──────────────────────────
+function logDeviceVisit() {
+  if (!_firestoreDb) return;
+  const isAdminPage = window.location.pathname.endsWith("admin.html");
+  if (isAdminPage) return; // não registra visita do próprio admin
+
+  try {
+    const ua = navigator.userAgent;
+
+    // Detectar SO
+    let os = "Desconhecido";
+    if (/android/i.test(ua))       os = "Android";
+    else if (/iphone|ipad/i.test(ua)) os = "iOS";
+    else if (/windows/i.test(ua))  os = "Windows";
+    else if (/mac os/i.test(ua))   os = "macOS";
+    else if (/linux/i.test(ua))    os = "Linux";
+
+    // Detectar navegador
+    let browser = "Desconhecido";
+    if (/edg\//i.test(ua))         browser = "Microsoft Edge";
+    else if (/chrome/i.test(ua))   browser = "Google Chrome";
+    else if (/firefox/i.test(ua))  browser = "Mozilla Firefox";
+    else if (/safari/i.test(ua))   browser = "Safari";
+    else if (/opera|opr/i.test(ua)) browser = "Opera";
+
+    // Detectar tipo de dispositivo
+    let deviceType = "Computador";
+    if (/mobile/i.test(ua))        deviceType = "Celular";
+    else if (/tablet|ipad/i.test(ua)) deviceType = "Tablet";
+
+    // Detectar marca (aproximado pelo userAgent)
+    let brand = "Desconhecida";
+    if (/samsung/i.test(ua))       brand = "Samsung";
+    else if (/xiaomi|redmi|miui/i.test(ua)) brand = "Xiaomi";
+    else if (/motorola|moto/i.test(ua)) brand = "Motorola";
+    else if (/lg\s/i.test(ua))     brand = "LG";
+    else if (/iphone|ipad|macintosh/i.test(ua)) brand = "Apple";
+    else if (/huawei/i.test(ua))   brand = "Huawei";
+    else if (/nokia/i.test(ua))    brand = "Nokia";
+
+    const deviceId = "dev_" + btoa(ua.slice(0, 60)).replace(/[^a-zA-Z0-9]/g, "").slice(0, 20);
+
+    _firestoreDb.collection("device_log").doc(deviceId).set({
+      os,
+      browser,
+      deviceType,
+      brand,
+      screen: `${window.screen.width}x${window.screen.height}`,
+      page: window.location.pathname.split("/").pop() || "index",
+      lastSeen: new Date().toISOString(),
+      userAgent: ua.slice(0, 200)
+    }, { merge: true }).catch(() => {});
+  } catch(e) { /* silently fail */ }
 }
 
 // ─── INTERNOS DO LOCALSTORAGE ───────────────────────────────
@@ -608,3 +667,5 @@ if (document.readyState === "loading") {
 // Exporta funções de autenticação Firebase para o admin.html
 window._getFirebaseAuth = () => _firebaseAuth;
 window._isFirebaseReady = () => _firebaseReady;
+window._firestoreDb     = null; // será atualizado após initFirebase()
+window._firebaseReady   = false; // será atualizado após initFirebase()
